@@ -218,70 +218,49 @@ const App: React.FC = () => {
     const getPlayerById = (id: number) => players.find(p => p.id === id);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4">
-            <div className="max-w-4xl mx-auto bg-white rounded shadow p-6 mt-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold">Балансировщик команд</h1>
-                    <div className="flex gap-2">
+        <div className="min-h-screen bg-gray-900 p-4 flex flex-col items-center justify-start">
+            <div className="max-w-4xl w-full bg-white/10 rounded shadow p-8 mt-12 flex flex-col items-center">
+                <h1 className="text-4xl font-bold mb-8 text-center">Балансировщик команд</h1>
+                <div className="w-full flex flex-col items-center mb-6">
+                    <button
+                        onClick={openAddPlayerModal}
+                        className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 mb-6"
+                    >
+                        + Добавить игрока
+                    </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center mb-6">
+                        <label className="font-medium text-lg">Количество команд:</label>
+                        <input
+                            type="number"
+                            min={2}
+                            max={players.length}
+                            value={teamsCount}
+                            onChange={handleTeamsCountChange}
+                            className="border rounded px-4 py-2 w-20 text-center"
+                        />
                         <button
-                            onClick={() => {
-                                const current = localStorage.getItem('teamBalancerPlayers');
-                                console.log('Текущий localStorage:', current);
-                                alert(`localStorage: ${current || 'пусто'}`);
-                            }}
-                            className="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700 text-sm"
+                            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mt-4 sm:mt-0"
+                            onClick={splitTeams}
+                            disabled={selected.length < teamsCount}
                         >
-                            Проверить
-                        </button>
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem('teamBalancerPlayers');
-                                setPlayers(initialPlayers);
-                                console.log('localStorage очищен, загружены начальные данные');
-                            }}
-                            className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 text-sm"
-                        >
-                            Сброс
-                        </button>
-                        <button
-                            onClick={openAddPlayerModal}
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                        >
-                            + Добавить игрока
+                            Разделить на команды
                         </button>
                     </div>
                 </div>
-                
-                <div className="flex items-center gap-4 mb-4">
-                    <label className="font-medium">Количество команд:</label>
-                    <input
-                        type="number"
-                        min={2}
-                        max={players.length}
-                        value={teamsCount}
-                        onChange={handleTeamsCountChange}
-                        className="border rounded px-2 py-1 w-16"
-                    />
-                    <button
-                        className="ml-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                        onClick={splitTeams}
-                        disabled={selected.length < teamsCount}
-                    >
-                        Разделить на команды
-                    </button>
-                </div>
-
                 {showTeams && teams.length > 0 && (
-                    <div className="mb-6">
-                        <h2 className="font-semibold mb-2">Составы команд:</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mb-8 w-full">
+                        <h2 className="font-semibold mb-2 text-center">Составы команд:</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {teams.map((team, idx) => (
-                                <div key={idx} className="border rounded p-2">
-                                    <div className="font-bold mb-1">Команда {idx + 1}</div>
+                                <div key={idx} className="border rounded p-4 bg-white/20">
+                                    <div className="font-bold mb-2 text-center">Команда {idx + 1}</div>
                                     <ul>
                                         {team.map((player) => (
-                                            <li key={player.id}>
-                                                {player.name} (<span className="text-gray-500">{player.nickname}</span>)
+                                            <li key={player.id} className="text-center">
+                                                {player.name}
+                                                {player.nickname && (
+                                                    <> (<span className="text-gray-400">{player.nickname}</span>)</>
+                                                )}
                                             </li>
                                         ))}
                                     </ul>
@@ -290,36 +269,35 @@ const App: React.FC = () => {
                         </div>
                     </div>
                 )}
-
-                <div className="overflow-x-auto">
-                    <table className="min-w-full border rounded">
-                        <thead className="bg-gray-100">
+                <div className="overflow-x-auto w-full">
+                    <table className="min-w-full border rounded bg-white/20">
+                        <thead className="bg-gray-800/80 text-white">
                         <tr>
-                            <th className="p-2"><input type="checkbox" checked={selected.length === players.length && players.length > 0} onChange={handleSelectAll} /></th>
-                            <th className="p-2">#</th>
-                            <th className="p-2">Имя</th>
-                            <th className="p-2">Ник</th>
-                            <th className="p-2">Рейтинг</th>
-                            <th className="p-2">Действия</th>
+                            <th className="px-6 py-3 text-center"><input type="checkbox" checked={selected.length === players.length && players.length > 0} onChange={handleSelectAll} /></th>
+                            <th className="px-6 py-3 text-center">#</th>
+                            <th className="px-6 py-3 text-center">Имя</th>
+                            <th className="px-6 py-3 text-center">Ник</th>
+                            <th className="px-6 py-3 text-center">Рейтинг</th>
+                            <th className="px-6 py-3 text-center">Действия</th>
                         </tr>
                         </thead>
                         <tbody>
                         {players.map((player, idx) => (
-                            <tr key={player.id} className={selected.includes(player.id) ? "bg-blue-50" : ""}>
-                                <td className="p-2 text-center">
+                            <tr key={player.id} className={selected.includes(player.id) ? "bg-blue-900/20" : ""}>
+                                <td className="px-6 py-3 text-center">
                                     <input
                                         type="checkbox"
                                         checked={selected.includes(player.id)}
                                         onChange={() => handleSelect(player.id)}
                                     />
                                 </td>
-                                <td className="p-2 text-center">{idx + 1}</td>
-                                <td className="p-2">{player.name}</td>
-                                <td className="p-2">{player.nickname}</td>
-                                <td className="p-2 text-center">{player.rating}</td>
-                                <td className="p-2 text-center">
+                                <td className="px-6 py-3 text-center">{idx + 1}</td>
+                                <td className="px-6 py-3 text-center">{player.name}</td>
+                                <td className="px-6 py-3 text-center">{player.nickname || '-'}</td>
+                                <td className="px-6 py-3 text-center">{player.rating}</td>
+                                <td className="px-6 py-3 text-center">
                                     <button 
-                                        className="px-2 py-1 rounded hover:bg-gray-200"
+                                        className="px-3 py-1 rounded hover:bg-gray-200"
                                         onClick={(e) => handleContextMenu(e, player.id)}
                                     >
                                         ⋮
@@ -331,9 +309,8 @@ const App: React.FC = () => {
                     </table>
                 </div>
             </div>
-
             {selected.length > 0 && (
-                <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow p-4 flex items-center justify-center z-50">
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow p-4 flex items-center justify-center z-50">
                     <span className="mr-4">Выбрано игроков: {selected.length}</span>
                     <input
                         type="number"
@@ -341,10 +318,10 @@ const App: React.FC = () => {
                         max={selected.length}
                         value={teamsCount}
                         onChange={handleTeamsCountChange}
-                        className="border rounded px-2 py-1 w-16 mr-4"
+                        className="border rounded px-4 py-2 w-20 mr-4 text-center"
                     />
                     <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                         onClick={splitTeams}
                         disabled={selected.length < teamsCount}
                     >
@@ -352,7 +329,6 @@ const App: React.FC = () => {
                     </button>
                 </div>
             )}
-
             {/* Контекстное меню */}
             {contextMenu.show && (
                 <div
@@ -377,11 +353,10 @@ const App: React.FC = () => {
                     </button>
                 </div>
             )}
-
             {/* Модальное окно */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded p-6 w-96">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h2 className="text-xl font-bold mb-4">
                             {editingPlayer ? 'Редактировать игрока' : 'Добавить игрока'}
                         </h2>
