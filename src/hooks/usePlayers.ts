@@ -8,20 +8,37 @@ export function usePlayers(initial: Player[] = []) {
     const [players, setPlayers] = useState<Player[]>(initial);
     const [initialized, setInitialized] = useState(false);
 
-    // загрузка из localStorage — выполняем один раз при монтировании
     useEffect(() => {
+        // 1) разбор из URL
+        let fromUrl: Player[] = [];
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const raw = params.get('players');
+            if (raw) {
+                fromUrl = JSON.parse(decodeURIComponent(raw));
+            }
+        } catch {}
+
+        // 2) загрузка из localStorage
+        let fromStorage: Player[] = initial;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
-                setPlayers(JSON.parse(saved));
-            } catch {
-                setPlayers(initial);
-            }
+                fromStorage = JSON.parse(saved);
+            } catch {}
         }
-        setInitialized(true);
-    }, []); // ← пустой массив зависимостей
 
-    // синхронизация обратно в localStorage
+        // 3) мерж (новые из URL + те, которых ещё нет в storage)
+        const merged = [...fromStorage];
+        fromUrl.forEach(p => {
+            if (!merged.find(x => x.id === p.id)) merged.push(p);
+        });
+
+        setPlayers(merged);
+        setInitialized(true);
+    }, []); // только раз при монтировании
+
+    // синхронизируем storage
     useEffect(() => {
         if (initialized) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
