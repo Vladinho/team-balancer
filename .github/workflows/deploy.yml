@@ -1,10 +1,14 @@
 # .github/workflows/deploy.yml
 name: 🛠️ Deploy to GitHub Pages
 
+# Дадим токену права на пуш в gh-pages
+permissions:
+  contents: write
+
 on:
   push:
     branches:
-      - main    # или master, откуда вы хотите триггерить билд
+      - main
   workflow_dispatch:
 
 jobs:
@@ -15,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0          # полный ребейз, необходим для пуша в gh-pages
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -34,6 +38,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          # необязательно, но может помочь при проблемах с автором коммита:
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
