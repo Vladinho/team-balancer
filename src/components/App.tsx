@@ -19,7 +19,6 @@ import { PlayerModal } from './PlayerModal';
 import type { Player, PlayerFormData } from '../types/player';
 
 export const App: React.FC = () => {
-    const [isCoppied, setIsCoppied] = useState(false);
     const { players, setPlayers } = usePlayers([]);
     const { selected, toggle, selectAll } = useSelection<number>();
     const { teams, show, split } = useTeams();
@@ -32,6 +31,8 @@ export const App: React.FC = () => {
     });
     const [teamsCount, setTeamsCount] = useState(2);
     const [shareLink, setShareLink] = useState<string>('');
+    const [isCopiedLink, setIsCopiedLink] = useState(false);
+    const [isCopiedTeams, setIsCopiedTeams] = useState(false);
 
     const handleSplit = () => {
         split(players, selected, teamsCount);
@@ -41,8 +42,24 @@ export const App: React.FC = () => {
         const payload = encodeURIComponent(JSON.stringify(players));
         const url = `${window.location.origin}${window.location.pathname}?players=${payload}`;
         setShareLink(url);
-        navigator.clipboard.writeText(url).catch(() => {
-            /* игнорируем ошибки копирования */
+        navigator.clipboard.writeText(url).catch(() => {});
+        setIsCopiedLink(true);
+        setTimeout(() => setIsCopiedLink(false), 3000);
+    };
+
+    const handleCopyTeams = () => {
+        if (!show || teams.length === 0) return;
+        const text = teams
+            .map((team, idx) =>
+                `Команда ${idx + 1}:\n` +
+                team
+                    .map(p => `${p.name}${p.nickname ? ` (${p.nickname})` : ''}`)
+                    .join('\n')
+            )
+            .join('\n\n');
+        navigator.clipboard.writeText(text).then(() => {
+            setIsCopiedTeams(true);
+            setTimeout(() => setIsCopiedTeams(false), 3000);
         });
     };
 
@@ -89,11 +106,6 @@ export const App: React.FC = () => {
                 <h1 className="text-center mb-4">Балансировщик команд</h1>
 
                 <Row className="mb-4 align-items-center justify-content-center gap-3">
-                    <Col xs="auto">
-                        <Button variant="success" onClick={openAdd}>
-                            + Добавить игрока
-                        </Button>
-                    </Col>
                     <Col xs="auto" className="d-flex align-items-center">
                         <Form.Label className="mb-0 me-2">Количество команд:</Form.Label>
                         <InputGroup style={{ width: 80 }}>
@@ -116,13 +128,18 @@ export const App: React.FC = () => {
                     </Col>
                 </Row>
 
-                <Row className="mb-4 align-items-center">
+                <Row className="mb-4 align-items-center gap-3">
                     <Col xs="auto">
+                        <Button variant="success" onClick={openAdd}>
+                            + Добавить игрока
+                        </Button>
+                    </Col>
+                    {!!players.length && <Col xs="auto">
                         <Button variant="info" onClick={handleShare}>
                             Поделиться базой игроков
                         </Button>
-                    </Col>
-                    <Col>
+                    </Col>}
+                    <Col xs="auto">
                         {shareLink && (
                             <InputGroup>
                                 <FormControl
@@ -132,18 +149,23 @@ export const App: React.FC = () => {
                                 />
                                 <Button
                                     variant="outline-secondary"
-                                    disabled={isCoppied}
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(shareLink);
-                                        setIsCoppied(true);
-                                        setTimeout(() => setIsCoppied(false), 2000);
-                                    }}
+                                    disabled={isCopiedLink}
+                                    onClick={handleShare}
                                 >
-                                    {isCoppied ? 'Скопировано' : 'Скопировать'}
+                                    {isCopiedLink ? 'Скопировано!' : 'Копировать'}
                                 </Button>
                             </InputGroup>
                         )}
                     </Col>
+                    {!!teams.length && <Col xs="auto">
+                        <Button
+                            variant="warning"
+                            disabled={!show || teams.length === 0}
+                            onClick={handleCopyTeams}
+                        >
+                            {isCopiedTeams ? 'Скопировано!' : 'Скопировать команды'}
+                        </Button>
+                    </Col>}
                 </Row>
 
                 {show && teams.length > 0 && <TeamsDisplay teams={teams} />}
