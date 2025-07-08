@@ -163,7 +163,7 @@ const App: React.FC = () => {
                     </>
                 )}
 
-                <Table bordered hover variant="dark" responsive className="text-center">
+                {players.length && <Table bordered hover variant="dark" responsive className="text-center">
                     <thead>
                     <tr>
                         <th><Form.Check checked={selected.length === players.length && players.length > 0} onChange={handleSelectAll} /></th>
@@ -194,7 +194,7 @@ const App: React.FC = () => {
                         </tr>
                     ))}
                     </tbody>
-                </Table>
+                </Table>}
             </div>
 
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
