@@ -1,23 +1,26 @@
+# .github/workflows/deploy.yml
 name: 🛠️ Deploy to GitHub Pages
 
-# Позволяет запускать вручную из Actions → Run workflow
 on:
   push:
     branches:
-      - main    # или master
+      - main    # или master, откуда вы хотите триггерить билд
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0          # полный ребейз, необходим для пуша в gh-pages
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'    # ваша версия, например 22
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
@@ -28,10 +31,9 @@ jobs:
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # Токен, автоматически подставляется Actions runner-ом
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          # ветка, откуда Pages будут брать файлы
           publish_branch: gh-pages
-          # optional: чистить перед пушем
-          clean: true
+          # необязательно, но может помочь при проблемах с автором коммита:
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
