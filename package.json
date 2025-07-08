@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "homepage": "https://Vladinho.github.io/team-balancer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vladinho/team-balancer.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -11,7 +15,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist -b gh-pages -r https://github.com/Vladinho/team-balancer.git"
   },
   "dependencies": {
     "bootstrap": "^5.3.7",
