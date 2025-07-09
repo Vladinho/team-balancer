@@ -51,7 +51,7 @@ export const PlayerModal: React.FC<Props> = ({
             min={1}
             max={100}
             value={formData.rating}
-            onChange={(e) => onChange({ ...formData, rating: Number(e.target.value) })}
+            onChange={(e) => onChange({ ...formData, rating: e.target.value && Number(e.target.value) })}
             required
           />
         </Form.Group>

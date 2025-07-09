@@ -9,7 +9,7 @@ import {
   FormControl,
   Form,
   OverlayTrigger,
-  Tooltip,
+  Tooltip, Modal,
 } from 'react-bootstrap';
 import { usePlayers } from '../hooks/usePlayers';
 import { useSelection } from '../hooks/useSelection';
@@ -25,21 +25,23 @@ export const App: React.FC = () => {
   const { selected, toggle, selectAll } = useSelection<number>();
   const { teams, show, split } = useTeams();
   const { isOpen, data: editingPlayer, open, close } = useModal<Player | null>();
+  const [showTeamsModal, setShowTeamsModal] = useState(false);
 
   const [formData, setFormData] = useState<PlayerFormData>({
     name: '',
     nickname: '',
     rating: 5,
   });
-  const [teamsCount, setTeamsCount] = useState(2);
+  const [teamsCount, setTeamsCount] = useState<number | string>(2);
   const [shareLink, setShareLink] = useState<string>('');
   const [isCopiedLink, setIsCopiedLink] = useState(false);
   const [isCopiedTeams, setIsCopiedTeams] = useState(false);
 
   const handleSplit = () => {
-    if (selected.length > 1) {
+    if (selected.length > 1 && typeof teamsCount === 'number') {
       split(players, selected, teamsCount);
     }
+    setShowTeamsModal(true);
   };
 
   const handleShare = () => {
@@ -105,9 +107,23 @@ export const App: React.FC = () => {
     <Container className="py-4 text-light bg-dark min-vh-100">
       <div className="mx-auto" style={{ maxWidth: 900 }}>
         <h1 className="text-center mb-4">Балансировщик команд</h1>
+          <OverlayTrigger
+              placement="bottom"
+              overlay={
+                <Tooltip id="split-tooltip">
+                  Для того чтобы сгенерировать команды необходимо:
+                  <br />
+                  {!players.length && '- добавить игроков в базу\n'}
+                  - выбрать минимум 2 игроков из таблицы игроков.
+                </Tooltip>
+              }
+          >
+            <Button variant={'info'} className="mb-3 d-flex align-items-center">Как это работает?</Button>
+          </OverlayTrigger>
 
-        <Row className="mb-4 align-items-center justify-content-center gap-3">
-          <Col xs="auto" className="d-flex align-items-center">
+
+        <Row className="mb-4 align-items-center justify-content-center gap-3 sticky-top shadow">
+          <Col xs="auto" className="d-flex align-items-center p-2">
             <Form.Label className="mb-0 me-2">Количество команд:</Form.Label>
             <InputGroup style={{ width: 80 }}>
               <FormControl
@@ -115,79 +131,19 @@ export const App: React.FC = () => {
                 min={2}
                 max={players.length}
                 value={teamsCount}
-                onChange={(e) => setTeamsCount(Number(e.target.value))}
+                onChange={(e) => setTeamsCount(e.target.value && Number(e.target.value))}
                 className="text-center"
               />
             </InputGroup>
-            <Button className="ms-3 d-flex align-items-center gap-2" onClick={handleSplit}>
+            <Button className="ms-3 d-flex align-items-center gap-2" onClick={handleSplit} disabled={selected.length < 2 || typeof teamsCount !== 'number'}>
               Разделить
-              <OverlayTrigger
-                placement="top"
-                overlay={
-                  <Tooltip id="split-tooltip">
-                    Для того чтобы сгенерировать команды необходимо выбрать минимум 2 игроков
-                  </Tooltip>
-                }
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-info-circle"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                </svg>
-              </OverlayTrigger>
             </Button>
           </Col>
-        </Row>
-
-        <Row className="mb-4 align-items-center gap-3">
-          <Col xs="auto">
-            <Button variant="success" onClick={openAdd}>
-              + Добавить игрока
-            </Button>
-          </Col>
-          {!!players.length && (
-            <Col xs="auto">
-              <Button variant="info" onClick={handleShare}>
-                Поделиться базой игроков
-              </Button>
-            </Col>
-          )}
-          <Col xs="auto">
-            {shareLink && (
-              <InputGroup>
-                <FormControl
-                  readOnly
-                  value={shareLink}
-                  aria-label="Ссылка для совместного доступа к базе игроков"
-                />
-                <Button variant="outline-secondary" disabled={isCopiedLink} onClick={handleShare}>
-                  {isCopiedLink ? 'Скопировано!' : 'Копировать'}
-                </Button>
-              </InputGroup>
-            )}
-          </Col>
-          {!!teams.length && (
-            <Col xs="auto">
-              <Button
-                variant="warning"
-                disabled={!show || teams.length === 0}
-                onClick={handleCopyTeams}
-              >
-                {isCopiedTeams ? 'Скопировано!' : 'Скопировать команды'}
-              </Button>
-            </Col>
-          )}
         </Row>
 
         {show && teams.length > 0 && <TeamsDisplay teams={teams} />}
 
-        {players.length > 0 && (
+        {players.length > 0 ? (
           <PlayerTable
             players={players}
             selected={selected}
@@ -196,8 +152,38 @@ export const App: React.FC = () => {
             onEdit={openEdit}
             onDelete={onDelete}
           />
-        )}
+        ) : (          <div className="text-center text-info p-2 my-3">База игроков пуста. Добавьте игроков в базу!</div>)}
       </div>
+
+      <Row className="mt-4 align-items-center gap-3">
+        <Col xs="auto">
+          <Button variant="success" onClick={openAdd}>
+            + Добавить игрока в базу
+          </Button>
+        </Col>
+        {!!players.length && (
+            <Col xs="auto">
+              <Button variant="info" onClick={handleShare}>
+                Поделиться базой игроков
+              </Button>
+            </Col>
+        )}
+        <Col xs="auto">
+          {shareLink && (
+              <InputGroup>
+                <FormControl
+                    readOnly
+                    value={shareLink}
+                    aria-label="Ссылка для совместного доступа к базе игроков"
+                />
+                <Button variant="outline-secondary" disabled={isCopiedLink} onClick={handleShare}>
+                  {isCopiedLink ? 'Скопировано!' : 'Копировать'}
+                </Button>
+              </InputGroup>
+          )}
+        </Col>
+      </Row>
+
 
       <PlayerModal
         show={isOpen}
@@ -207,6 +193,33 @@ export const App: React.FC = () => {
         onSubmit={onSubmit}
         onClose={close}
       />
+
+      <Modal
+          show={showTeamsModal}
+          onHide={() => setShowTeamsModal(false)}
+          size="lg"
+          centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Сгенерированные команды</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <TeamsDisplay teams={teams} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleSplit}>Обновить</Button>
+          <Button
+              variant="warning"
+              disabled={!show || teams.length === 0}
+              onClick={handleCopyTeams}
+          >
+            {isCopiedTeams ? 'Скопировано!' : 'Скопировать'}
+          </Button>
+          <Button variant="secondary" onClick={() => setShowTeamsModal(false)}>
+            Закрыть
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

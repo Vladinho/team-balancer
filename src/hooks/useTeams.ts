@@ -7,7 +7,7 @@ export function useTeams() {
 
   function split(players: Player[], selectedIds: number[], count: number) {
     const sel = players.filter((p) => selectedIds.includes(p.id));
-    const sorted = [...sel].sort((a, b) => b.rating - a.rating);
+    const sorted = [...sel].sort((a, b) => Number(b.rating) - Number(a.rating));
 
     const newTeams: Player[][] = Array.from({ length: count }, () => []);
     const sums = Array(count).fill(0);

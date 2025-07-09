@@ -2,11 +2,11 @@ export interface Player {
   id: number;
   name: string;
   nickname: string;
-  rating: number;
+  rating: number | string;
 }
 
 export interface PlayerFormData {
   name: string;
   nickname: string;
-  rating: number;
+  rating: number | string;
 }
