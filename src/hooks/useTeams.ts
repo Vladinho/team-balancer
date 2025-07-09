@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import type { Player } from '../types/player';
+import type {Color} from "../types/color.ts";
 
 export function useTeams() {
   const [teams, setTeams] = useState<Player[][]>([]);
   const [show, setShow] = useState(false);
+  const [colors, setColors] = useState<Record<number, Color>>({});
+
+  const setTeamColor = (id: number, color: Color) => {
+    setColors((prev) => ({ ...prev, [id]: color }));
+  };
 
   function split(players: Player[], selectedIds: number[], count: number) {
     const sel = players.filter((p) => selectedIds.includes(p.id));
@@ -24,5 +30,5 @@ export function useTeams() {
     setShow(true);
   }
 
-  return { teams, show, split, hide: () => setShow(false) };
+  return { teams, show, split, hide: () => setShow(false), teamColors: colors, setTeamColor };
 }

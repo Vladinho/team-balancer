@@ -23,7 +23,7 @@ import type { Player, PlayerFormData } from '../types/player';
 export const App: React.FC = () => {
   const { players, setPlayers } = usePlayers([]);
   const { selected, toggle, selectAll } = useSelection<number>();
-  const { teams, show, split } = useTeams();
+  const { teams, show, split, teamColors, setTeamColor  } = useTeams();
   const { isOpen, data: editingPlayer, open, close } = useModal<Player | null>();
   const [showTeamsModal, setShowTeamsModal] = useState(false);
 
@@ -58,8 +58,8 @@ export const App: React.FC = () => {
     const text = teams
       .map(
         (team, idx) =>
-          `Команда ${idx + 1}:\n` +
-          team.map((p) => `${p.name}${p.nickname ? ` (${p.nickname})` : ''}`).join('\n')
+          `Команда ${idx + 1}${teamColors[idx] ? ` (${teamColors[idx].name})` : ''}:\n` +
+          team.map((p, idx) => `${idx + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}`).join('\n')
       )
       .join('\n\n');
     navigator.clipboard.writeText(text).then(() => {
@@ -141,8 +141,6 @@ export const App: React.FC = () => {
           </Col>
         </Row>
 
-        {show && teams.length > 0 && <TeamsDisplay teams={teams} />}
-
         {players.length > 0 ? (
           <PlayerTable
             players={players}
@@ -204,7 +202,7 @@ export const App: React.FC = () => {
           <Modal.Title>Сгенерированные команды</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <TeamsDisplay teams={teams} />
+          <TeamsDisplay teams={teams} teamColors={teamColors} setTeamColor={setTeamColor} />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleSplit}>Обновить</Button>
@@ -214,9 +212,6 @@ export const App: React.FC = () => {
               onClick={handleCopyTeams}
           >
             {isCopiedTeams ? 'Скопировано!' : 'Скопировать'}
-          </Button>
-          <Button variant="secondary" onClick={() => setShowTeamsModal(false)}>
-            Закрыть
           </Button>
         </Modal.Footer>
       </Modal>
