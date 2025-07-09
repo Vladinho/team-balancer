@@ -205,7 +205,7 @@ export const App: React.FC = () => {
           <TeamsDisplay teams={teams} teamColors={teamColors} setTeamColor={setTeamColor} />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleSplit}>Обновить</Button>
+          <Button onClick={handleSplit}>Переделить команды</Button>
           <Button
               variant="warning"
               disabled={!show || teams.length === 0}
