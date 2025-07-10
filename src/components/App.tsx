@@ -210,6 +210,7 @@ export const App: React.FC = () => {
           selected={selected}
           onToggle={toggle}
           onSelectAll={() => selectAll(players.map((p) => p.id))}
+          onDeselectAll={() => selectAll([])}
           onEdit={openEdit}
           onDelete={onDelete}
           onBulkDelete={() => setShowDeleteModal(true)}
