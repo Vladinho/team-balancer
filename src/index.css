@@ -75,6 +75,13 @@ button:focus-visible {
   }
 }
 
+table {
+  th {
+    text-transform: capitalize;
+    vertical-align: middle;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
