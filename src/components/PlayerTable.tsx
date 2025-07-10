@@ -11,6 +11,7 @@ interface PlayerTableProps {
   onDelete: (id: number) => void;
   onBulkDelete: () => void;
   onBulkAddTags: () => void;
+  onBulkDeleteTags: () => void;
 }
 
 export const PlayerTable: React.FC<PlayerTableProps> = ({
@@ -22,6 +23,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
                                                           onDelete,
                                                           onBulkDelete,
                                                           onBulkAddTags,
+                                                          onBulkDeleteTags,
                                                         }) => (
     <Table bordered hover variant="dark" responsive className="text-center mb-0">
       <thead>
@@ -85,6 +87,12 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
               <Button variant="secondary" size="sm" className="me-2" onClick={onBulkAddTags}>
                 Добавить теги
               </Button>
+
+              {
+                  selected.some(id => players.some(i => i.id === id && i && i.tags && i.tags.length > 0)) && <Button variant="secondary" size="sm" className="me-2" onClick={onBulkDeleteTags}>
+                    Удалить теги
+                  </Button>
+              }
               <Button variant="danger" size="sm" onClick={onBulkDelete}>
                 Удалить выбранных ({selected.length})
               </Button>

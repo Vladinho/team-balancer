@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const [showTeamsModal, setShowTeamsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagsModal, setShowAddTagsModal] = useState(false);
+  const [showDeleteTagsModal, setShowDeleteTagsModal] = useState(false);
 
   // Фильтры
   const [searchQuery, setSearchQuery] = useState('');
@@ -144,17 +145,10 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
 
   return (
       <Container className="py-4 text-light bg-dark min-vh-100">
-        <Row>
-          <Col>
-            <h3 className="mb-4 flex-shrink-1">Балансировщик команд</h3>
-          </Col>
-          <Col style={{textAlign: 'right'}}>
-            <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
-              Как это работает?
-            </Button>
-          </Col>
-        </Row>
-
+        <h1 className="text-center mb-4">Балансировщик команд</h1>
+        <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
+          Как это работает?
+        </Button>
 
         {/* Модалка "Как это работает?" */}
         <Modal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} centered>
@@ -231,6 +225,7 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
                 onDelete={onDelete}
                 onBulkDelete={() => setShowDeleteModal(true)}
                 onBulkAddTags={() => setShowAddTagsModal(true)}
+                onBulkDeleteTags={() => setShowDeleteTagsModal(true)}
             />
         ) : (
             <div className="text-center text-info py-3">Игроки не найдены.</div>
@@ -309,7 +304,7 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
           </Modal.Header>
           <Modal.Body>
             <Form.Group>
-              <Form.Label>Теги для добавления:</Form.Label>ка
+              <Form.Label>Теги для добавления:</Form.Label>
               <Select
                   isMulti
                   options={availableTags.map(t => ({ value: t, label: t }))}
@@ -327,6 +322,34 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
             </Button>
             <Button variant="primary" onClick={handleConfirmBulkAddTags}>
               Добавить
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Удаление тегов */}
+        <Modal
+            show={showDeleteTagsModal}
+            onHide={() => setShowDeleteTagsModal(false)}
+            centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Удаление тегов</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Вы уверены, что хотите удалить все теги у {selected.length} {selected.length === 1 ? 'игрока' : 'игроков'}?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteTagsModal(false)}>
+              Отмена
+            </Button>
+            <Button variant="danger" onClick={() => {
+              setPlayers(prev => prev.map(p =>
+                  selected.includes(p.id) ? { ...p, tags: [] } : p
+              ));
+              setShowDeleteTagsModal(false);
+            }}
+            >
+              Удалить теги
             </Button>
           </Modal.Footer>
         </Modal>
