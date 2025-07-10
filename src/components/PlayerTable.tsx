@@ -7,12 +7,12 @@ interface PlayerTableProps {
   selected: number[];
   onToggle: (id: number) => void;
   onSelectAll: () => void;
+  onDeselectAll: () => void;
   onEdit: (p: Player) => void;
   onDelete: (id: number) => void;
   onBulkDelete: () => void;
   onBulkAddTags: () => void;
   onBulkDeleteTags: () => void;
-  onDeselectAll: () => void;
 }
 
 type SortKey = 'name' | 'nickname' | 'rating';
@@ -23,12 +23,12 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
   selected,
   onToggle,
   onSelectAll,
+  onDeselectAll,
   onEdit,
   onDelete,
   onBulkDelete,
   onBulkAddTags,
   onBulkDeleteTags,
-  onDeselectAll,
 }) => {
   // Sorting state
   const [sortConfig, setSortConfig] = useState<{
@@ -48,10 +48,15 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
 
   const getSortIndicator = (column: SortKey) => {
     if (sortConfig.key !== column) return '';
-    if (sortConfig.direction === 'asc') return ' ▲';
-    if (sortConfig.direction === 'desc') return ' ▼';
-    return '';
+    return sortConfig.direction === 'asc' ? ' ▲' : sortConfig.direction === 'desc' ? ' ▼' : '';
   };
+
+  // Gather all unique tags across players for dynamic columns
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    players.forEach((p) => p.tags?.forEach((t) => set.add(t)));
+    return Array.from(set);
+  }, [players]);
 
   // Memoized sorting
   const sortedPlayers = useMemo(() => {
@@ -92,6 +97,10 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
           <th onClick={() => toggleSort('rating')} style={{ cursor: 'pointer' }}>
             Рейтинг{getSortIndicator('rating')}
           </th>
+          {/* Dynamic tag rating columns */}
+          {allTags.map((tag) => (
+            <th key={tag}>{tag} рейтинг</th>
+          ))}
           <th>Теги</th>
           <th></th>
         </tr>
@@ -106,6 +115,10 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
             <td>{p.name}</td>
             <td>{p.nickname || '-'}</td>
             <td>{p.rating}</td>
+            {/* Dynamic tag ratings per player */}
+            {allTags.map((tag) => (
+              <td key={tag}>{p.tagRatings?.[tag] ?? '-'}</td>
+            ))}
             <td>
               {p.tags?.map((t) => (
                 <Badge key={t} bg="secondary" className="me-1">
@@ -132,7 +145,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
       {selected.length > 0 && (
         <tfoot>
           <tr>
-            <td colSpan={7} className="bg-dark" style={{ textAlign: 'left' }}>
+            <td colSpan={7 + allTags.length} className="bg-dark" style={{ textAlign: 'left' }}>
               <Button variant="secondary" size="sm" className="me-2" onClick={onDeselectAll}>
                 Снять выделение
               </Button>

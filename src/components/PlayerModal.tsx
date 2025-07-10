@@ -7,7 +7,7 @@ import type { PlayerFormData } from '../types/player';
 interface Props {
   show: boolean;
   formData: PlayerFormData;
-  onChange: (data: PlayerFormData & { tags: string[] }) => void;
+  onChange: (data: PlayerFormData) => void;
   onSubmit: (e: FormEvent) => void;
   onClose: () => void;
   title: string;
@@ -24,17 +24,25 @@ export const PlayerModal: React.FC<Props> = ({
   availableTags,
 }) => {
   const tagOptions = availableTags.map((tag) => ({ value: tag, label: tag }));
-  const defaultValues = formData.tags?.map((tag) => ({ value: tag, label: tag }));
 
   const handleSelectChange = (newValue: MultiValue<{ value: string; label: string }>) => {
     const tags = newValue.map((opt) => opt.value);
-    onChange({ ...formData, tags });
+    // reset ratings for removed tags
+    const updatedRatings = formData.tagRatings || {};
+    Object.keys(updatedRatings).forEach((key) => {
+      if (!tags.includes(key)) delete updatedRatings[key];
+    });
+    onChange({ ...formData, tags, tagRatings: updatedRatings });
   };
 
   const handleCreateOption = (inputValue: string) => {
     const newTag = inputValue.trim();
     if (!newTag || formData.tags.includes(newTag)) return;
-    onChange({ ...formData, tags: [...formData.tags, newTag] });
+    onChange({
+      ...formData,
+      tags: [...formData.tags, newTag],
+      tagRatings: { ...(formData.tagRatings || {}) },
+    });
   };
 
   return (
@@ -53,6 +61,7 @@ export const PlayerModal: React.FC<Props> = ({
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>
               Ник <span className="text-secondary">(опционально)</span>
@@ -63,6 +72,7 @@ export const PlayerModal: React.FC<Props> = ({
               onChange={(e) => onChange({ ...formData, nickname: e.target.value })}
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Рейтинг</Form.Label>
             <Form.Control
@@ -79,6 +89,7 @@ export const PlayerModal: React.FC<Props> = ({
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Теги</Form.Label>
             <CreatableSelect
@@ -87,12 +98,36 @@ export const PlayerModal: React.FC<Props> = ({
               value={formData.tags.map((tag) => ({ value: tag, label: tag }))}
               isMulti
               options={tagOptions}
-              defaultValue={defaultValues}
               onChange={handleSelectChange}
               onCreateOption={handleCreateOption}
               placeholder="Выберите или создайте тег..."
             />
           </Form.Group>
+
+          {/* Дополнительные поля для рейтинга по тегам */}
+          {formData.tags.length > 0 &&
+            formData.tags.map((tag) => (
+              <Form.Group className="mb-3" key={tag}>
+                <Form.Label>
+                  Рейтинг ({tag}) <span className="text-secondary">(опционально)</span>
+                </Form.Label>
+                <Form.Control
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={formData.tagRatings?.[tag] ?? ''}
+                  onChange={(e) =>
+                    onChange({
+                      ...formData,
+                      tagRatings: {
+                        ...(formData.tagRatings || {}),
+                        [tag]: e.target.value ? Number(e.target.value) : undefined,
+                      },
+                    })
+                  }
+                />
+              </Form.Group>
+            ))}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onClose}>

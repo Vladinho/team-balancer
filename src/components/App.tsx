@@ -27,6 +27,20 @@ export const App: React.FC = () => {
   const [showAddTagsModal, setShowAddTagsModal] = useState(false);
   const [showDeleteTagsModal, setShowDeleteTagsModal] = useState(false);
 
+  // Внутри App:
+  const [splitTag, setSplitTag] = useState<string>('');
+
+  const commonTags = useMemo<string[]>(() => {
+    if (selected.length < 2) return [];
+    const selPlayers = players.filter((p) => selected.includes(p.id));
+    // начинаем с тегов первого игрока, а потом оставляем только те, что есть у всех
+    return selPlayers.reduce<string[]>(
+      (common, p, i) =>
+        i === 0 ? [...(p.tags ?? [])] : common.filter((tag) => p.tags?.includes(tag)),
+      []
+    );
+  }, [players, selected]);
+
   // Фильтры
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState<string[]>([]);
@@ -41,11 +55,12 @@ export const App: React.FC = () => {
   );
 
   // Состояние формы добавления/редактирования
-  const [formData, setFormData] = useState<PlayerFormData & { tags: string[] }>({
+  const [formData, setFormData] = useState<PlayerFormData>({
     name: '',
     nickname: '',
     rating: 5,
     tags: [],
+    tagRatings: {},
   });
 
   const [teamsCount, setTeamsCount] = useState<number | string>(2);
@@ -61,7 +76,7 @@ export const App: React.FC = () => {
   // Разделение команд
   const handleSplit = () => {
     if (selected.length > 1 && typeof teamsCount === 'number') {
-      split(players, selected, teamsCount);
+      split(players, selected, teamsCount, splitTag);
       setShowTeamsModal(true);
     }
   };
@@ -81,12 +96,18 @@ export const App: React.FC = () => {
 
   // Открытие модалки добавления игрока
   const openAdd = () => {
-    setFormData({ name: '', nickname: '', rating: 5, tags: [] });
+    setFormData({ name: '', nickname: '', rating: 5, tags: [], tagRatings: {} });
     open(null);
   };
   // Открытие модалки редактирования
   const openEdit = (p: Player) => {
-    setFormData({ name: p.name, nickname: p.nickname, rating: p.rating, tags: p.tags ?? [] });
+    setFormData({
+      name: p.name,
+      nickname: p.nickname,
+      rating: p.rating,
+      tags: p.tags ?? [],
+      tagRatings: p.tagRatings,
+    });
     open(p);
   };
 
@@ -159,7 +180,9 @@ export const App: React.FC = () => {
       {/* Параметры разделения */}
       <Row className="mb-4 sticky-top bg-dark p-2 shadow">
         <Col xs="auto" className="d-flex align-items-center">
-          <Form.Label className="mb-0 me-2">Количество команд:</Form.Label>
+          <Form.Label className="mb-0 me-2" style={{ fontSize: '14px' }}>
+            Количество команд:
+          </Form.Label>
           <InputGroup style={{ width: 80 }}>
             <FormControl
               type="number"
@@ -170,6 +193,20 @@ export const App: React.FC = () => {
               className="text-center"
             />
           </InputGroup>
+
+          {commonTags.length > 0 && (
+            <div className="ms-3" style={{ minWidth: 120 }}>
+              <Select
+                className="text-dark"
+                options={commonTags.map((t) => ({ value: t, label: t }))}
+                value={splitTag ? { value: splitTag, label: splitTag } : null}
+                onChange={(opt) => setSplitTag(opt?.value ?? '')}
+                placeholder="По тегу"
+                isClearable
+              />
+            </div>
+          )}
+
           <Button className="ms-3" onClick={handleSplit} disabled={selected.length < 2}>
             Создать команды
           </Button>
@@ -312,6 +349,7 @@ export const App: React.FC = () => {
         onHide={() => setShowTeamsModal(false)}
         onRedo={handleSplit}
         canCopy={show && teams.length > 0}
+        splitTag={splitTag}
       />
     </Container>
   );
