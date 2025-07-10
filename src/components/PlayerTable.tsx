@@ -15,7 +15,6 @@ interface PlayerTableProps {
   onBulkDeleteTags: () => void;
 }
 
-type SortKey = 'name' | 'nickname' | 'rating';
 type SortDirection = 'asc' | 'desc';
 
 export const PlayerTable: React.FC<PlayerTableProps> = ({
@@ -32,11 +31,14 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
 }) => {
   // Sorting state
   const [sortConfig, setSortConfig] = useState<{
-    key: SortKey | null;
+    key: string | null;
     direction: SortDirection | null;
-  }>({ key: null, direction: null });
+  }>({
+    key: null,
+    direction: null,
+  });
 
-  const toggleSort = (key: SortKey) => {
+  const toggleSort = (key: string) => {
     if (sortConfig.key !== key) {
       setSortConfig({ key, direction: 'asc' });
     } else if (sortConfig.direction === 'asc') {
@@ -46,7 +48,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
     }
   };
 
-  const getSortIndicator = (column: SortKey) => {
+  const getSortIndicator = (column: string) => {
     if (sortConfig.key !== column) return '';
     return sortConfig.direction === 'asc' ? ' ▲' : sortConfig.direction === 'desc' ? ' ▼' : '';
   };
@@ -58,13 +60,23 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
     return Array.from(set);
   }, [players]);
 
-  // Memoized sorting
+  // Memoized sorting including dynamic tag-rating columns
   const sortedPlayers = useMemo(() => {
     const { key, direction } = sortConfig;
     if (!key || !direction) return players;
+
     return [...players].sort((a, b) => {
-      let aVal: string | number = a[key];
-      let bVal: string | number = b[key];
+      let aVal: string | number;
+      let bVal: string | number;
+
+      if (key === 'name' || key === 'nickname' || key === 'rating') {
+        aVal = a[key as keyof Player];
+        bVal = b[key as keyof Player];
+      } else {
+        // dynamic tag rating column
+        aVal = a.tagRatings?.[key] ?? 0;
+        bVal = b.tagRatings?.[key] ?? 0;
+      }
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         aVal = aVal.toLowerCase();
@@ -97,9 +109,11 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
           <th onClick={() => toggleSort('rating')} style={{ cursor: 'pointer' }}>
             Рейтинг{getSortIndicator('rating')}
           </th>
-          {/* Dynamic tag rating columns */}
+          {/* Dynamic tag rating columns with sorting */}
           {allTags.map((tag) => (
-            <th key={tag}>{tag} рейтинг</th>
+            <th key={tag} onClick={() => toggleSort(tag)} style={{ cursor: 'pointer' }}>
+              {tag} рейтинг{getSortIndicator(tag)}
+            </th>
           ))}
           <th>Теги</th>
           <th></th>
