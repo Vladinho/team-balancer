@@ -1,5 +1,5 @@
 // src/components/App.tsx
-import React, { useMemo, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { Container, Row, Col, Button, InputGroup, FormControl, Modal, Form } from 'react-bootstrap';
 import Select, { type MultiValue } from 'react-select';
 import { usePlayers } from '../hooks/usePlayers';
@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const { isOpen, data: editingPlayer, open, close } = useModal<Player | null>();
 
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [isShareLinkVisible, setIsShareLinkVisible] = useState(false);
   const [showTeamsModal, setShowTeamsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagsModal, setShowAddTagsModal] = useState(false);
@@ -64,13 +65,16 @@ export const App: React.FC = () => {
   };
 
   // Поделиться ссылкой
-  const handleShare = () => {
-    const payload = encodeURIComponent(JSON.stringify(players));
+  const handleShare = (isCopyAction = false) => {
+    const selectedPlayers = players.filter((p) => selected.includes(p.id));
+    const payload = encodeURIComponent(JSON.stringify(selectedPlayers));
     const url = `${window.location.origin}${window.location.pathname}?players=${payload}`;
     setShareLink(url);
-    navigator.clipboard.writeText(url).catch(() => {});
-    setIsCopiedLink(true);
-    setTimeout(() => setIsCopiedLink(false), 3000);
+   if (isCopyAction) {
+     navigator.clipboard.writeText(url).catch(() => {});
+     setIsCopiedLink(true);
+     setTimeout(() => setIsCopiedLink(false), 3000);
+   }
   };
 
   // Копирование команд в буфер
@@ -141,12 +145,24 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
     setShowAddTagsModal(false);
   };
 
+  useEffect(() => {
+    setIsShareLinkVisible(false);
+    setShareLink('');
+  }, [selected]);
+
   return (
-    <Container className="py-4 text-light bg-dark min-vh-100">
-      <h1 className="text-center mb-4">Балансировщик команд</h1>
-      <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
-        Как это работает?
-      </Button>
+      <Container className="py-4 text-light bg-dark min-vh-100">
+        <Row>
+          <Col>
+            <h3 className="mb-4 flex-shrink-1">Балансировщик команд</h3>
+          </Col>
+          <Col style={{textAlign: 'right'}}>
+            <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
+              Как это работает?
+            </Button>
+          </Col>
+        </Row>
+
 
       {/* Модалка "Как это работает?" */}
       <Modal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} centered>
@@ -156,8 +172,8 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
         <Modal.Body>
           <ul>
             <li>Нажмите «Добавить игрока» для создания игрока.</li>
-            <li>Выберите игроков в таблице игроков (через чекбоксы).</li>
-            <li>Нажмите кнопку "Разделить"</li>
+            <li>Выберите минимум 2 игроков в таблице игроков (через "чекбоксы" в левой колонке).</li>
+            <li>Нажмите кнопку "Создать команды"</li>
           </ul>
         </Modal.Body>
         <Modal.Footer>
@@ -182,7 +198,7 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
             />
           </InputGroup>
           <Button className="ms-3" onClick={handleSplit} disabled={selected.length < 2}>
-            Разделить
+            Создать команды
           </Button>
         </Col>
       </Row>
@@ -236,18 +252,21 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
             + Добавить игрока
           </Button>
         </Col>
-        {players.length > 0 && (
+        {selected.length > 0 && (
           <Col xs="auto">
-            <Button variant="info" onClick={handleShare}>
-              Поделиться
+            <Button variant="info" onClick={() => {
+              setIsShareLinkVisible(p => !p);
+              handleShare();
+            }}>
+              Поделиться базой выбранных игроков
             </Button>
           </Col>
         )}
-        {shareLink && (
+        {shareLink && isShareLinkVisible && (
           <Col xs="auto">
             <InputGroup>
               <FormControl readOnly value={shareLink} />
-              <Button variant="outline-secondary" onClick={handleShare}>
+              <Button variant="outline-secondary" onClick={() => handleShare(true)}>
                 {isCopiedLink ? 'Скопировано!' : 'Копировать'}
               </Button>
             </InputGroup>
