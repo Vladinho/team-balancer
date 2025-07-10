@@ -86,7 +86,6 @@ export const PlayerModal: React.FC<Props> = ({
                   rating: e.target.value ? Number(e.target.value) : '',
                 })
               }
-              required
             />
           </Form.Group>
 

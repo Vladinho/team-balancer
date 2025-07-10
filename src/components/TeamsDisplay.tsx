@@ -29,7 +29,7 @@ export const TeamsDisplay: React.FC<Props> = ({ teams, teamColors, setTeamColor,
           <div className="bg-secondary p-3 rounded text-light">
             {/* Заголовок с учётом splitTag и выбор цвета */}
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="mb-0">
+              <h5 className="mb-0" style={{ wordBreak: 'break-word' }}>
                 Команда {idx + 1}
                 {splitTag ? ` (по тегу "${splitTag}")` : ''}
               </h5>
