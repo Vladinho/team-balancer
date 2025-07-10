@@ -3,10 +3,12 @@ export interface Player {
   name: string;
   nickname: string;
   rating: number | string;
+  tags: string[];
 }
 
 export interface PlayerFormData {
   name: string;
   nickname: string;
   rating: number | string;
+  tags: string[];
 }
