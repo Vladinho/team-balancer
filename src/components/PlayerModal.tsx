@@ -82,6 +82,7 @@ export const PlayerModal: React.FC<Props> = ({
           <Form.Group className="mb-3">
             <Form.Label>Теги</Form.Label>
             <CreatableSelect
+              formatCreateLabel={(inputValue) => `Создать тег "${inputValue}"`}
               value={formData.tags.map((tag) => ({ value: tag, label: tag }))}
               isMulti
               options={tagOptions}
