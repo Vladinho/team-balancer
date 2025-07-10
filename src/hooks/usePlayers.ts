@@ -1,4 +1,3 @@
-// hooks/usePlayers.ts
 import { useState, useEffect } from 'react';
 import type { Player } from '../types/player';
 

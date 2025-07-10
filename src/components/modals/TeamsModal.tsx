@@ -1,4 +1,3 @@
-// src/components/modals/TeamsModal.tsx
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { TeamsDisplay } from '../TeamsDisplay';

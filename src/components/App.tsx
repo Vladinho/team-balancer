@@ -1,4 +1,3 @@
-// src/components/App.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Container, Row, Col, Button, InputGroup, FormControl, Form } from 'react-bootstrap';
 import Select, { type MultiValue } from 'react-select';
@@ -188,18 +187,20 @@ export const App: React.FC = () => {
             />
           </InputGroup>
         </Col>
-        <Col xs={6}>
-          <Select
-            className="text-dark"
-            isMulti
-            options={availableTags.map((t) => ({ value: t, label: t }))}
-            value={tagFilter.map((t) => ({ value: t, label: t }))}
-            onChange={(v: MultiValue<{ value: string; label: string }>) =>
-              setTagFilter(v.map((opt) => opt.value))
-            }
-            placeholder="Фильтр по тегам"
-          />
-        </Col>
+        {!!availableTags.length && (
+          <Col xs={6}>
+            <Select
+              className="text-dark"
+              isMulti
+              options={availableTags.map((t) => ({ value: t, label: t }))}
+              value={tagFilter.map((t) => ({ value: t, label: t }))}
+              onChange={(v: MultiValue<{ value: string; label: string }>) =>
+                setTagFilter(v.map((opt) => opt.value))
+              }
+              placeholder="Фильтр по тегам"
+            />
+          </Col>
+        )}
       </Row>
 
       {/* Таблица */}

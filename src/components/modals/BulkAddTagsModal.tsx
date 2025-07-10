@@ -1,4 +1,3 @@
-// src/components/modals/BulkAddTagsModal.tsx
 import React from 'react';
 import Select from 'react-select/creatable';
 import { Modal, Button, Form } from 'react-bootstrap';
