@@ -148,7 +148,7 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
           <Col>
             <h3 className="mb-4 flex-shrink-1">Балансировщик команд</h3>
           </Col>
-          <Col>
+          <Col style={{textAlign: 'right'}}>
             <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
               Как это работает?
             </Button>
