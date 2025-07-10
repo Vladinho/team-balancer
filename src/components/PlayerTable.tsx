@@ -66,12 +66,12 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
     if (!key || !direction) return players;
 
     return [...players].sort((a, b) => {
-      let aVal: string | number;
-      let bVal: string | number;
+      let aVal: string | number | undefined;
+      let bVal: string | number | undefined;
 
       if (key === 'name' || key === 'nickname' || key === 'rating') {
-        aVal = a[key as keyof Player];
-        bVal = b[key as keyof Player];
+        aVal = a[key as keyof Player] as string;
+        bVal = b[key as keyof Player] as string;
       } else {
         // dynamic tag rating column
         aVal = a.tagRatings?.[key] ?? 0;
