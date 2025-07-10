@@ -15,23 +15,23 @@ interface PlayerTableProps {
 }
 
 export const PlayerTable: React.FC<PlayerTableProps> = ({
-                                                          players,
-                                                          selected,
-                                                          onToggle,
-                                                          onSelectAll,
-                                                          onEdit,
-                                                          onDelete,
-                                                          onBulkDelete,
-                                                          onBulkAddTags,
-                                                          onBulkDeleteTags,
-                                                        }) => (
-    <Table bordered hover variant="dark" responsive className="text-center mb-0">
-      <thead>
+  players,
+  selected,
+  onToggle,
+  onSelectAll,
+  onEdit,
+  onDelete,
+  onBulkDelete,
+  onBulkAddTags,
+  onBulkDeleteTags,
+}) => (
+  <Table bordered hover variant="dark" responsive className="text-center mb-0">
+    <thead>
       <tr>
         <th>
           <Form.Check
-              checked={selected.length === players.length && players.length > 0}
-              onChange={onSelectAll}
+            checked={selected.length === players.length && players.length > 0}
+            onChange={onSelectAll}
           />
         </th>
         <th>#</th>
@@ -41,64 +41,61 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
         <th>Теги</th>
         <th></th>
       </tr>
-      </thead>
-      <tbody>
+    </thead>
+    <tbody>
       {players.map((p, i) => (
-          <tr key={p.id} className={selected.includes(p.id) ? 'table-primary' : ''}>
-            <td>
-              <Form.Check
-                  checked={selected.includes(p.id)}
-                  onChange={() => onToggle(p.id)}
-              />
-            </td>
-            <td>{i + 1}</td>
-            <td>{p.name}</td>
-            <td>{p.nickname || '-'}</td>
-            <td>{p.rating}</td>
-            <td>
-              {p.tags?.map(t => (
-                  <Badge key={t} bg="secondary" className="me-1">
-                    {t}
-                  </Badge>
-              ))}
-            </td>
-            <td>
-              <Dropdown>
-                <Dropdown.Toggle variant="outline-light" size="sm" style={{fontWeight: 'bold'}}>
-                  ⋮
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => onEdit(p)}>
-                    Редактировать
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => onDelete(p.id)} className="text-danger">
-                    Удалить
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </td>
-          </tr>
+        <tr key={p.id} className={selected.includes(p.id) ? 'table-primary' : ''}>
+          <td>
+            <Form.Check checked={selected.includes(p.id)} onChange={() => onToggle(p.id)} />
+          </td>
+          <td>{i + 1}</td>
+          <td>{p.name}</td>
+          <td>{p.nickname || '-'}</td>
+          <td>{p.rating}</td>
+          <td>
+            {p.tags?.map((t) => (
+              <Badge key={t} bg="secondary" className="me-1">
+                {t}
+              </Badge>
+            ))}
+          </td>
+          <td>
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-light" size="sm" style={{ fontWeight: 'bold' }}>
+                ⋮
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => onEdit(p)}>Редактировать</Dropdown.Item>
+                <Dropdown.Item onClick={() => onDelete(p.id)} className="text-danger">
+                  Удалить
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </td>
+        </tr>
       ))}
-      </tbody>
-      {selected.length > 0 && (
-          <tfoot>
-          <tr>
-            <td colSpan={7} className="bg-dark" style={{ textAlign: 'left' }}>
-              <Button variant="secondary" size="sm" className="me-2" onClick={onBulkAddTags}>
-                Добавить теги
-              </Button>
+    </tbody>
+    {selected.length > 0 && (
+      <tfoot>
+        <tr>
+          <td colSpan={7} className="bg-dark" style={{ textAlign: 'left' }}>
+            <Button variant="secondary" size="sm" className="me-2" onClick={onBulkAddTags}>
+              Добавить теги
+            </Button>
 
-              {
-                  selected.some(id => players.some(i => i.id === id && i && i.tags && i.tags.length > 0)) && <Button variant="secondary" size="sm" className="me-2" onClick={onBulkDeleteTags}>
-                    Удалить теги
-                  </Button>
-              }
-              <Button variant="danger" size="sm" onClick={onBulkDelete}>
-                Удалить выбранных ({selected.length})
+            {selected.some((id) =>
+              players.some((i) => i.id === id && i && i.tags && i.tags.length > 0)
+            ) && (
+              <Button variant="secondary" size="sm" className="me-2" onClick={onBulkDeleteTags}>
+                Удалить теги
               </Button>
-            </td>
-          </tr>
-          </tfoot>
-      )}
-    </Table>
+            )}
+            <Button variant="danger" size="sm" onClick={onBulkDelete}>
+              Удалить выбранных ({selected.length})
+            </Button>
+          </td>
+        </tr>
+      </tfoot>
+    )}
+  </Table>
 );

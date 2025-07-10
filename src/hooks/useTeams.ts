@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Player } from '../types/player';
-import type {Color} from "../types/color.ts";
+import type { Color } from '../types/color.ts';
 
 export function useTeams() {
   const [teams, setTeams] = useState<Player[][]>([]);
