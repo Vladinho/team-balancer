@@ -73,7 +73,7 @@ export const PlayerModal: React.FC<Props> = ({
               onChange={(e) =>
                 onChange({
                   ...formData,
-                  rating: e.target.value ? Number(e.target.value) : formData.rating,
+                  rating: e.target.value ? Number(e.target.value) : '',
                 })
               }
               required

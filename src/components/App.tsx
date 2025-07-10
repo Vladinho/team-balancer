@@ -166,7 +166,7 @@ export const App: React.FC = () => {
               min={2}
               max={players.length}
               value={teamsCount}
-              onChange={(e) => setTeamsCount(Number(e.target.value))}
+              onChange={(e) => setTeamsCount(e.target.value ? Number(e.target.value) : '')}
               className="text-center"
             />
           </InputGroup>
