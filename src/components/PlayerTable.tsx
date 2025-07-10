@@ -62,7 +62,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
             </td>
             <td>
               <Dropdown>
-                <Dropdown.Toggle variant="outline-light" size="sm">
+                <Dropdown.Toggle variant="outline-light" size="sm" style={{fontWeight: 'bold'}}>
                   ⋮
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
