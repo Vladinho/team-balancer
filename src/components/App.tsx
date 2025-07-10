@@ -10,6 +10,7 @@ import { PlayerTable } from './PlayerTable';
 import { TeamsDisplay } from './TeamsDisplay';
 import { PlayerModal } from './PlayerModal';
 import type { Player, PlayerFormData } from '../types/player';
+import CreatableSelect from "react-select/creatable";
 
 export const App: React.FC = () => {
   const { players, setPlayers } = usePlayers([]);
@@ -149,6 +150,15 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
     setIsShareLinkVisible(false);
     setShareLink('');
   }, [selected]);
+
+  const handleCreateOption = (inputValue: string) => {
+    const newTag = inputValue.trim();
+    if (!newTag) return;
+    // Добавляем новый тег к выбранным для массового добавления
+    setBulkTags((prev) =>
+        prev.includes(newTag) ? prev : [...prev, newTag]
+    );
+  };
 
   return (
       <Container className="py-4 text-light bg-dark min-vh-100">
@@ -311,14 +321,18 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
         <Modal.Body>
           <Form.Group>
             <Form.Label>Теги для добавления:</Form.Label>
-            <Select
-              isMulti
-              options={availableTags.map((t) => ({ value: t, label: t }))}
-              value={bulkTags.map((t) => ({ value: t, label: t }))}
-              onChange={(v: MultiValue<{ value: string; label: string }>) =>
-                setBulkTags(v.map((opt) => opt.value))
-              }
-              placeholder="Выберите теги..."
+            <CreatableSelect
+                formatCreateLabel={(inputValue) => `Создать тег "${inputValue}"`}
+                noOptionsMessage={() => 'Нет доступных тегов'}
+                value={formData.tags.map((tag) => ({ value: tag, label: tag }))}
+                isMulti
+                options={availableTags.map((t) => ({ value: t, label: t }))}
+                defaultValue={bulkTags.map((t) => ({ value: t, label: t }))}
+                onChange={(v: MultiValue<{ value: string; label: string }>) =>
+                    setBulkTags(v.map((opt) => opt.value))
+                }
+                onCreateOption={handleCreateOption}
+                placeholder="Выберите или создайте тег..."
             />
           </Form.Group>
         </Modal.Body>

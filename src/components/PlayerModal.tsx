@@ -83,6 +83,7 @@ export const PlayerModal: React.FC<Props> = ({
             <Form.Label>Теги</Form.Label>
             <CreatableSelect
               formatCreateLabel={(inputValue) => `Создать тег "${inputValue}"`}
+              noOptionsMessage={() => 'Нет доступных тегов'}
               value={formData.tags.map((tag) => ({ value: tag, label: tag }))}
               isMulti
               options={tagOptions}
