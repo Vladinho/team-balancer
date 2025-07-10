@@ -1,16 +1,19 @@
 // src/components/App.tsx
-import React, {useEffect, useMemo, useState} from 'react';
-import { Container, Row, Col, Button, InputGroup, FormControl, Modal, Form } from 'react-bootstrap';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Container, Row, Col, Button, InputGroup, FormControl, Form } from 'react-bootstrap';
 import Select, { type MultiValue } from 'react-select';
 import { usePlayers } from '../hooks/usePlayers';
 import { useSelection } from '../hooks/useSelection';
 import { useTeams } from '../hooks/useTeams';
 import { useModal } from '../hooks/useModal';
 import { PlayerTable } from './PlayerTable';
-import { TeamsDisplay } from './TeamsDisplay';
 import { PlayerModal } from './PlayerModal';
 import type { Player, PlayerFormData } from '../types/player';
-import CreatableSelect from "react-select/creatable";
+import { HowItWorksModal } from './modals/HowItWorksModal.tsx';
+import { ConfirmDeleteModal } from './modals/ConfirmDeleteModal.tsx';
+import { BulkAddTagsModal } from './modals/BulkAddTagsModal.tsx';
+import { BulkDeleteTagsModal } from './modals/BulkDeleteTagsModal.tsx';
+import { TeamsModal } from './modals/TeamsModal.tsx';
 
 export const App: React.FC = () => {
   const { players, setPlayers } = usePlayers([]);
@@ -49,7 +52,6 @@ export const App: React.FC = () => {
   const [teamsCount, setTeamsCount] = useState<number | string>(2);
   const [shareLink, setShareLink] = useState('');
   const [isCopiedLink, setIsCopiedLink] = useState(false);
-  const [isCopiedTeams, setIsCopiedTeams] = useState(false);
 
   // Все уникальные теги
   const availableTags = useMemo(() => {
@@ -71,27 +73,11 @@ export const App: React.FC = () => {
     const payload = encodeURIComponent(JSON.stringify(selectedPlayers));
     const url = `${window.location.origin}${window.location.pathname}?players=${payload}`;
     setShareLink(url);
-   if (isCopyAction) {
-     navigator.clipboard.writeText(url).catch(() => {});
-     setIsCopiedLink(true);
-     setTimeout(() => setIsCopiedLink(false), 3000);
-   }
-  };
-
-  // Копирование команд в буфер
-  const handleCopyTeams = () => {
-    if (!show || teams.length === 0) return;
-    const text = teams
-      .map(
-        (team, idx) =>
-          `Команда ${idx + 1}${teamColors[idx] ? ` (${teamColors[idx].name})` : ''}:
-${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}`).join('\n')}`
-      )
-      .join('\n\n');
-    navigator.clipboard.writeText(text).then(() => {
-      setIsCopiedTeams(true);
-      setTimeout(() => setIsCopiedTeams(false), 3000);
-    });
+    if (isCopyAction) {
+      navigator.clipboard.writeText(url).catch(() => {});
+      setIsCopiedLink(true);
+      setTimeout(() => setIsCopiedLink(false), 3000);
+    }
   };
 
   // Открытие модалки добавления игрока
@@ -155,43 +141,21 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
     const newTag = inputValue.trim();
     if (!newTag) return;
     // Добавляем новый тег к выбранным для массового добавления
-    setBulkTags((prev) =>
-        prev.includes(newTag) ? prev : [...prev, newTag]
-    );
+    setBulkTags((prev) => (prev.includes(newTag) ? prev : [...prev, newTag]));
   };
 
   return (
-      <Container className="py-4 text-light bg-dark min-vh-100">
-        <Row>
-          <Col>
-            <h3 className="mb-4 flex-shrink-1">Балансировщик команд</h3>
-          </Col>
-          <Col style={{textAlign: 'right'}}>
-            <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
-              Как это работает?
-            </Button>
-          </Col>
-        </Row>
-
-
-      {/* Модалка "Как это работает?" */}
-      <Modal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Как это работает?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ul>
-            <li>Нажмите «Добавить игрока» для создания игрока.</li>
-            <li>Выберите минимум 2 игроков в таблице игроков (через "чекбоксы" в левой колонке).</li>
-            <li>Нажмите кнопку "Создать команды"</li>
-          </ul>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowHowItWorks(false)}>
-            Закрыть
+    <Container className="py-4 text-light bg-dark min-vh-100">
+      <Row>
+        <Col>
+          <h3 className="mb-4 flex-shrink-1">Балансировщик команд</h3>
+        </Col>
+        <Col style={{ textAlign: 'right' }}>
+          <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
+            Как это работает?
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </Col>
+      </Row>
 
       {/* Параметры разделения */}
       <Row className="mb-4 sticky-top bg-dark p-2 shadow">
@@ -264,10 +228,13 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
         </Col>
         {selected.length > 0 && (
           <Col xs="auto">
-            <Button variant="info" onClick={() => {
-              setIsShareLinkVisible(p => !p);
-              handleShare();
-            }}>
+            <Button
+              variant="info"
+              onClick={() => {
+                setIsShareLinkVisible((p) => !p);
+                handleShare();
+              }}
+            >
               Поделиться базой выбранных игроков
             </Button>
           </Col>
@@ -295,99 +262,55 @@ ${team.map((p, i) => `${i + 1}. ${p.name}${p.nickname ? ` (${p.nickname})` : ''}
         onClose={close}
       />
 
-      {/* Подтверждение удаления */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Удаление игроков</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Удалить {selected.length} {selected.length === 1 ? 'игрока' : 'игроков'}?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Отмена
-          </Button>
-          <Button variant="danger" onClick={handleBulkDelete}>
-            Удалить
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Modals */}
+      <HowItWorksModal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} />
 
-      {/* Добавление тегов */}
-      <Modal show={showAddTagsModal} onHide={() => setShowAddTagsModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Добавить теги выбранным игрокам</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Теги для добавления:</Form.Label>
-            <CreatableSelect
-                formatCreateLabel={(inputValue) => `Создать тег "${inputValue}"`}
-                noOptionsMessage={() => 'Нет доступных тегов'}
-                value={formData.tags.map((tag) => ({ value: tag, label: tag }))}
-                isMulti
-                options={availableTags.map((t) => ({ value: t, label: t }))}
-                defaultValue={bulkTags.map((t) => ({ value: t, label: t }))}
-                onChange={(v: MultiValue<{ value: string; label: string }>) =>
-                    setBulkTags(v.map((opt) => opt.value))
-                }
-                onCreateOption={handleCreateOption}
-                placeholder="Выберите или создайте тег..."
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowAddTagsModal(false)}>
-            Отмена
-          </Button>
-          <Button variant="primary" onClick={handleConfirmBulkAddTags}>
-            Добавить
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <PlayerModal
+        availableTags={availableTags}
+        show={isOpen}
+        title={editingPlayer ? 'Сохранить' : 'Добавить'}
+        formData={formData}
+        onChange={setFormData}
+        onSubmit={onSubmit}
+        onClose={close}
+      />
 
-      {/* Удаление тегов */}
-      <Modal show={showDeleteTagsModal} onHide={() => setShowDeleteTagsModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Удаление тегов</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Вы уверены, что хотите удалить все теги у {selected.length}{' '}
-          {selected.length === 1 ? 'игрока' : 'игроков'}?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteTagsModal(false)}>
-            Отмена
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              setPlayers((prev) =>
-                prev.map((p) => (selected.includes(p.id) ? { ...p, tags: [] } : p))
-              );
-              setShowDeleteTagsModal(false);
-            }}
-          >
-            Удалить теги
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        count={selected.length}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={handleBulkDelete}
+      />
 
-      {/* Модалка команд */}
-      <Modal show={showTeamsModal} onHide={() => setShowTeamsModal(false)} size="lg" centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Сгенерированные команды</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <TeamsDisplay teams={teams} teamColors={teamColors} setTeamColor={setTeamColor} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleSplit}>Переделить</Button>
-          <Button variant="warning" onClick={handleCopyTeams} disabled={!show}>
-            {isCopiedTeams ? 'Скопировано!' : 'Копировать'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <BulkAddTagsModal
+        show={showAddTagsModal}
+        availableTags={availableTags}
+        selectedTags={bulkTags}
+        onHide={() => setShowAddTagsModal(false)}
+        onChange={setBulkTags}
+        onCreateOption={handleCreateOption}
+        onConfirm={handleConfirmBulkAddTags}
+      />
+
+      <BulkDeleteTagsModal
+        show={showDeleteTagsModal}
+        count={selected.length}
+        onHide={() => setShowDeleteTagsModal(false)}
+        onConfirm={() => {
+          setPlayers((prev) => prev.map((p) => (selected.includes(p.id) ? { ...p, tags: [] } : p)));
+          setShowDeleteTagsModal(false);
+        }}
+      />
+
+      <TeamsModal
+        show={showTeamsModal}
+        teams={teams}
+        teamColors={teamColors}
+        setTeamColor={setTeamColor}
+        onHide={() => setShowTeamsModal(false)}
+        onRedo={handleSplit}
+        canCopy={show && teams.length > 0}
+      />
     </Container>
   );
 };
