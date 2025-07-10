@@ -38,7 +38,7 @@ export const App: React.FC = () => {
       (tagFilter.length === 0 || p.tags?.some(tag => tagFilter.includes(tag)))
   );
 
-  const [formData, setFormData] = useState<PlayerFormData & { tags: string[] }>({
+  const [formData, setFormData] = useState<PlayerFormData>({
     name: '',
     nickname: '',
     rating: 5,
@@ -51,7 +51,7 @@ export const App: React.FC = () => {
 
   const availableTags = useMemo(() => {
     const allTags = players.flatMap(p => p.tags);
-    return Array.from(new Set(allTags)).filter(Boolean);
+    return Array.from(new Set(allTags)).filter(Boolean) as string[];
   }, [players]);
 
   const handleSplit = () => {
@@ -92,7 +92,7 @@ export const App: React.FC = () => {
   };
 
   const openEdit = (p: Player) => {
-    setFormData({ name: p.name, nickname: p.nickname, rating: p.rating, tags: p.tags });
+    setFormData({ name: p.name, nickname: p.nickname, rating: p.rating, tags: p.tags ?? [] });
     open(p);
   };
 

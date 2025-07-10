@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Form, Dropdown } from 'react-bootstrap';
+import {Table, Form, Dropdown, Badge} from 'react-bootstrap';
 import type { Player } from '../types/player';
 
 interface PlayerTableProps {
@@ -32,6 +32,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
         <th>Имя</th>
         <th>Ник</th>
         <th>Рейтинг</th>
+        <th>Теги</th>
         <th></th>
       </tr>
     </thead>
@@ -45,6 +46,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
           <td>{p.name}</td>
           <td>{p.nickname || '-'}</td>
           <td>{p.rating}</td>
+          <td>{p.tags?.map(t => <Badge key={t}>{t}</Badge>)}</td>
           <td>
             <Dropdown>
               <Dropdown.Toggle variant="outline-light" size="sm">

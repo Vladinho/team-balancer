@@ -3,7 +3,7 @@ export interface Player {
   name: string;
   nickname: string;
   rating: number | string;
-  tags: string[];
+  tags?: string[];
 }
 
 export interface PlayerFormData {

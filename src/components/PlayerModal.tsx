@@ -6,7 +6,7 @@ import type { PlayerFormData } from '../types/player';
 
 interface Props {
     show: boolean;
-    formData: PlayerFormData & { tags: string[] };
+    formData: PlayerFormData;
     onChange: (data: PlayerFormData & { tags: string[] }) => void;
     onSubmit: (e: FormEvent) => void;
     onClose: () => void;
@@ -25,7 +25,9 @@ export const PlayerModal: React.FC<Props> = ({
                                              }) => {
 
     const tagOptions = availableTags.map(tag => ({ value: tag, label: tag }));
-    const defaultValues = formData.tags.map(tag => ({ value: tag, label: tag }));
+    const defaultValues = formData.tags?.map(tag => ({ value: tag, label: tag }));
+
+    console.log(defaultValues, 'd')
 
     const handleSelectChange = (
         newValue: MultiValue<{ value: string; label: string }>,
@@ -85,6 +87,7 @@ export const PlayerModal: React.FC<Props> = ({
                     <Form.Group className="mb-3">
                         <Form.Label>Теги</Form.Label>
                         <CreatableSelect
+                            value={formData.tags.map(tag => ({ value: tag, label: tag }))}
                             isMulti
                             options={tagOptions}
                             defaultValue={defaultValues}
