@@ -99,7 +99,6 @@ export const TeamsDisplay: React.FC<Props> = ({ teams, teamColors, setTeamColor,
               Суммарный рейтинг:{' '}
               {team.reduce((acc, player) => {
                 const rating = getPlayerRating(player, splitTag);
-                console.log(player, rating);
                 return acc + rating;
               }, 0)}
             </h5>
