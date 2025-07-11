@@ -29,8 +29,8 @@ export function usePlayers(initial: Player[] = []) {
 
     // 3) мерж: перезаписываем игроков из storage игроками из URL и добавляем новых
     const storageMap = new Map<number, Player>();
-    fromStorage.forEach(p => storageMap.set(p.id, p));
-    fromUrl.forEach(p => storageMap.set(p.id, p));
+    fromStorage.forEach((p) => storageMap.set(p.id, p));
+    fromUrl.forEach((p) => storageMap.set(p.id, p));
     const merged: Player[] = Array.from(storageMap.values());
 
     setPlayers(merged);

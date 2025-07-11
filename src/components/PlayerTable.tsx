@@ -125,9 +125,15 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
             <td>
               <Form.Check checked={selected.includes(p.id)} onChange={() => onToggle(p.id)} />
             </td>
-            <td>{i + 1}</td>
-            <td>{p.name}</td>
-            <td>{p.nickname || '-'}</td>
+            <td onClick={() => onToggle(p.id)} style={{ cursor: 'pointer' }}>
+              {i + 1}
+            </td>
+            <td onClick={() => onToggle(p.id)} style={{ cursor: 'pointer' }}>
+              {p.name}
+            </td>
+            <td onClick={() => onToggle(p.id)} style={{ cursor: 'pointer' }}>
+              {p.nickname || '-'}
+            </td>
             <td>{p.rating}</td>
             {/* Dynamic tag ratings per player */}
             {allTags.map((tag) => (

@@ -23,99 +23,106 @@ interface Props {
 
 export const TeamsDisplay: React.FC<Props> = ({ teams, teamColors, setTeamColor, splitTag }) => {
   return (
-      <Row className="mb-4 justify-content-center">
-        {teams.map((team, idx) => (
-            <Col key={idx} xs={12} md={6} className="mb-3">
-              <div className="bg-secondary p-3 rounded text-light">
-                {/* Заголовок и выбор цвета */}
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h5 className="mb-0" style={{ wordBreak: 'break-word' }}>
-                    Команда {idx + 1}
-                    {splitTag ? ` (по тегу "${splitTag}")` : ''}
-                  </h5>
-                  <Dropdown>
-                    <Dropdown.Toggle
-                        variant="light"
-                        id={`team-color-dropdown-${idx}`}
+    <Row className="mb-4 justify-content-center">
+      {teams.map((team, idx) => (
+        <Col key={idx} xs={12} md={6} className="mb-3">
+          <div className="bg-secondary p-3 rounded text-light">
+            {/* Заголовок и выбор цвета */}
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="mb-0" style={{ wordBreak: 'break-word' }}>
+                Команда {idx + 1}
+                {splitTag ? ` (по тегу "${splitTag}")` : ''}
+              </h5>
+              <Dropdown>
+                <Dropdown.Toggle
+                  variant="light"
+                  id={`team-color-dropdown-${idx}`}
+                  style={{
+                    maxWidth: '150px',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {teamColors[idx] ? (
+                    <>
+                      <span
                         style={{
-                          maxWidth: '150px',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          overflow: 'hidden',
+                          display: 'inline-block',
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: teamColors[idx].hex,
+                          border: '1px solid black',
+                          marginRight: 8,
                         }}
-                    >
-                      {teamColors[idx] ? (
-                          <>
-                      <span
-                          style={{
-                            display: 'inline-block',
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            backgroundColor: teamColors[idx].hex,
-                            border: '1px solid black',
-                            marginRight: 8,
-                          }}
                       />
-                            {teamColors[idx].name}
-                          </>
-                      ) : (
-                          'Цвет не выбран'
-                      )}
-                    </Dropdown.Toggle>
+                      {teamColors[idx].name}
+                    </>
+                  ) : (
+                    'Цвет не выбран'
+                  )}
+                </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
-                      {colors.map((c) => (
-                          <Dropdown.Item key={c.hex} onClick={() => setTeamColor(idx, c)}>
+                <Dropdown.Menu>
+                  {colors.map((c) => (
+                    <Dropdown.Item key={c.hex} onClick={() => setTeamColor(idx, c)}>
                       <span
-                          style={{
-                            display: 'inline-block',
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            backgroundColor: c.hex,
-                            border: '1px solid black',
-                            marginRight: 8,
-                          }}
+                        style={{
+                          display: 'inline-block',
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: c.hex,
+                          border: '1px solid black',
+                          marginRight: 8,
+                        }}
                       />
-                            {c.name}
-                          </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </div>
-
-                {/* Таблица состава команды */}
-                <Table striped bordered hover size="sm" variant="light" style={{borderRadius: '10px', overflow: 'hidden'}}>
-                  <thead>
-                  <tr>
-                    <th></th>
-                    <th>Игрок</th>
-                    <th>Рейтинг</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  {team.map((p, i) => (
-                      <tr key={p.id}>
-                        <td>{i + 1}</td>
-                        <td style={{ wordBreak: 'break-word' }}>
-                          {p.name}
-                          {p.nickname ? ` (${p.nickname})` : ''}
-                        </td>
-                        <td>{getPlayerRating(p, splitTag)}</td>
-                      </tr>
+                      {c.name}
+                    </Dropdown.Item>
                   ))}
-                  </tbody>
-                </Table>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
 
-                {/* Суммарный рейтинг */}
-                <h5>
-                  Суммарный рейтинг: {' '}
-                  {team.reduce((acc, player) => acc + getPlayerRating(player, splitTag), 0)}
-                </h5>
-              </div>
-            </Col>
-        ))}
-      </Row>
+            {/* Таблица состава команды */}
+            <Table
+              striped
+              bordered
+              hover
+              size="sm"
+              variant="light"
+              style={{ borderRadius: '10px', overflow: 'hidden' }}
+            >
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Игрок</th>
+                  <th>Рейтинг</th>
+                </tr>
+              </thead>
+              <tbody>
+                {team.map((p, i) => (
+                  <tr key={p.id}>
+                    <td>{i + 1}</td>
+                    <td style={{ wordBreak: 'break-word' }}>
+                      {p.name}
+                      {p.nickname ? ` (${p.nickname})` : ''}
+                    </td>
+                    <td>{getPlayerRating(p, splitTag)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+
+            {/* Суммарный рейтинг */}
+            <h5>
+              Суммарный рейтинг:{' '}
+              {team.reduce((acc, player) => acc + getPlayerRating(player, splitTag), 0)}
+            </h5>
+          </div>
+        </Col>
+      ))}
+    </Row>
   );
 };
