@@ -31,9 +31,7 @@ export const TeamsModal: React.FC<TeamsModalProps> = ({
     if (!show || teams.length === 0) return;
 
     // Добавляем заголовок с учётом splitTag
-    const header = splitTag ? `Распределено по тегу "${splitTag}"\n\n` : '';
-
-    const body = teams
+    const text = teams
       .map(
         (team, idx) =>
           `Команда ${idx + 1}${teamColors[idx] ? ` (${teamColors[idx].name})` : ''}:\n` +
@@ -42,8 +40,6 @@ export const TeamsModal: React.FC<TeamsModalProps> = ({
             .join('\n')
       )
       .join('\n\n');
-
-    const text = header + body;
 
     navigator.clipboard.writeText(text).then(() => {
       setIsCopiedTeams(true);
