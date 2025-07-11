@@ -160,6 +160,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
         <tfoot>
           <tr>
             <td colSpan={7 + allTags.length} className="bg-dark" style={{ textAlign: 'left' }}>
+              <p>Выбрано: {selected.length}</p>
               <Button variant="secondary" size="sm" className="me-2" onClick={onDeselectAll}>
                 Снять выделение
               </Button>

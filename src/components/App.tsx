@@ -180,10 +180,10 @@ export const App: React.FC = () => {
       {/* Параметры разделения */}
       <Row className="mb-4 sticky-top bg-dark p-2 shadow">
         <Col xs="auto" className="d-flex align-items-center">
-          <Form.Label className="mb-0 me-2" style={{ fontSize: '14px' }}>
-            Количество команд:
+          <Form.Label className="mb-0 me-2" style={{ fontSize: '12px' }}>
+            Число команд:
           </Form.Label>
-          <InputGroup style={{ width: 80 }}>
+          <InputGroup style={{ width: 80, minWidth: 50 }}>
             <FormControl
               type="number"
               min={2}
@@ -246,7 +246,7 @@ export const App: React.FC = () => {
           players={filteredPlayers}
           selected={selected}
           onToggle={toggle}
-          onSelectAll={() => selectAll(players.map((p) => p.id))}
+          onSelectAll={() => selectAll(filteredPlayers.map((p) => p.id))}
           onDeselectAll={() => selectAll([])}
           onEdit={openEdit}
           onDelete={onDelete}

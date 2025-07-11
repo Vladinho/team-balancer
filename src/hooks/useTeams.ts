@@ -25,8 +25,8 @@ export function useTeams() {
 
     // Отсортировать по рейтингу по тегу или fallback
     const sorted = [...sel].sort((a, b) => {
-      const ra = a.tagRatings?.[splitTag] ?? 5;
-      const rb = b.tagRatings?.[splitTag] ?? 5;
+      const ra = getPlayerRating(a, splitTag);
+      const rb = getPlayerRating(b, splitTag);
       return rb - ra;
     });
 
