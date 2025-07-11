@@ -99,7 +99,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
               onChange={onSelectAll}
             />
           </th>
-          <th>#</th>
+          <th></th>
           <th onClick={() => toggleSort('name')} style={{ cursor: 'pointer' }}>
             Имя{getSortIndicator('name')}
           </th>
