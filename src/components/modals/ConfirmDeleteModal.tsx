@@ -4,6 +4,7 @@ import { Modal, Button } from 'react-bootstrap';
 interface ConfirmDeleteModalProps {
   show: boolean;
   count: number;
+  name?: string;
   onHide: () => void;
   onConfirm: () => void;
 }
@@ -11,6 +12,7 @@ interface ConfirmDeleteModalProps {
 export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   show,
   count,
+  name,
   onHide,
   onConfirm,
 }) => (
@@ -19,7 +21,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
       <Modal.Title>Удаление игроков</Modal.Title>
     </Modal.Header>
     <Modal.Body>
-      Удалить {count} {count === 1 ? 'игрока' : 'игроков'}?
+      Удалить {name || count} {count === 1 ? 'игрока' : 'игроков'}?
     </Modal.Body>
     <Modal.Footer>
       <Button variant="secondary" onClick={onHide}>

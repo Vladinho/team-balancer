@@ -30,6 +30,7 @@ body {
   min-height: 100vh;
   width: 100%;
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  padding-bottom: 50px;
 }
 
 .sticky-top {

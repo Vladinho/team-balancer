@@ -26,6 +26,8 @@ export const App: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagsModal, setShowAddTagsModal] = useState(false);
   const [showDeleteTagsModal, setShowDeleteTagsModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Внутри App:
   const [splitTag, setSplitTag] = useState<string>('');
@@ -131,8 +133,6 @@ export const App: React.FC = () => {
     close();
   };
 
-  // Удаление одиночное и массовое
-  const onDelete = (id: number) => setPlayers((prev) => prev.filter((p) => p.id !== id));
   const handleBulkDelete = () => {
     setPlayers((prev) => prev.filter((p) => !selected.includes(p.id)));
     selectAll([]);
@@ -164,198 +164,223 @@ export const App: React.FC = () => {
     setBulkTags((prev) => (prev.includes(newTag) ? prev : [...prev, newTag]));
   };
 
+  // при клике «удалить» у строки
+  const handleSingleDelete = (id: number) => {
+    setDeleteTarget(id);
+    setShowDeleteConfirm(true);
+  };
+
+  // по нажатию «подтвердить» в модалке
+  const confirmSingleDelete = () => {
+    if (deleteTarget !== null) {
+      setPlayers((prev) => prev.filter((p) => p.id !== deleteTarget));
+    }
+    setDeleteTarget(null);
+    setShowDeleteConfirm(false);
+  };
+
   return (
-      <>
-        <Row className='pt-3 px-2'>
-          <Col>
-            <h3 className="mb-0 flex-shrink-1 text-white">Балансировщик команд</h3>
-          </Col>
-          <Col style={{ textAlign: 'right' }}>
-            <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
-              Как это работает?
-            </Button>
-          </Col>
-        </Row>
-        <Row className="mb-4 sticky-top bg-dark p-2 shadow">
-          <Col xs="auto" className="d-flex align-items-center pt-2">
-            <div className={'flex-row flex-shrink-1'} style={{width: '50px'}}>
-              <Form.Label className="mb-0 me-2 text-white" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                Команд:
-              </Form.Label>
-              <InputGroup>
-                <FormControl
-                    type="number"
-                    min={2}
-                    max={players.length}
-                    value={teamsCount}
-                    onChange={(e) => setTeamsCount(e.target.value ? Number(e.target.value) : '')}
-                    className="text-center"
-                />
-              </InputGroup>
-            </div>
-
-
-            {commonTags.length > 0 && (
-                <div className="ms-3" style={{ minWidth: 120, alignSelf: 'end' }}>
-                  <Select
-                      className="text-dark"
-                      options={commonTags.map((t) => ({ value: t, label: t }))}
-                      value={splitTag ? { value: splitTag, label: splitTag } : null}
-                      onChange={(opt) => setSplitTag(opt?.value ?? '')}
-                      placeholder="По тегу"
-                      isClearable
-                  />
-                </div>
-            )}
-
-            <Button className="ms-3 create-btn" onClick={handleSplit} disabled={selected.length < 2}>
-              Создать команды
-            </Button>
-          </Col>
-        </Row>
-        <Container className="py-4 text-light bg-dark min-vh-100">
-          {/* Параметры разделения */}
-
-          {/* Фильтры */}
-          <Row className="mb-3">
-            <Col xs={6}>
-              <InputGroup>
-                <FormControl
-                    placeholder="Поиск"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </InputGroup>
-            </Col>
-            {!!availableTags.length && (
-                <Col xs={6}>
-                  <Select
-                      className="text-dark"
-                      isMulti
-                      options={availableTags.map((t) => ({ value: t, label: t }))}
-                      value={tagFilter.map((t) => ({ value: t, label: t }))}
-                      onChange={(v: MultiValue<{ value: string; label: string }>) =>
-                          setTagFilter(v.map((opt) => opt.value))
-                      }
-                      placeholder="Теги"
-                  />
-                </Col>
-            )}
-          </Row>
-
-          {/* Таблица */}
-          {filteredPlayers.length ? (
-              <PlayerTable
-                  players={filteredPlayers}
-                  selected={selected}
-                  onToggle={toggle}
-                  onSelectAll={() => selectAll(filteredPlayers.map((p) => p.id))}
-                  onDeselectAll={() => selectAll([])}
-                  onEdit={openEdit}
-                  onDelete={onDelete}
-                  onBulkDelete={() => setShowDeleteModal(true)}
-                  onBulkAddTags={() => setShowAddTagsModal(true)}
-                  onBulkDeleteTags={() => setShowDeleteTagsModal(true)}
+    <>
+      <Row className="pt-3 px-2">
+        <Col>
+          <h3 className="mb-0 flex-shrink-1 text-white">Балансировщик команд</h3>
+        </Col>
+        <Col style={{ textAlign: 'right' }}>
+          <Button variant="info" className="mb-3" onClick={() => setShowHowItWorks(true)}>
+            Как это работает?
+          </Button>
+        </Col>
+      </Row>
+      <Row className="mb-4 sticky-top bg-dark p-2 shadow">
+        <Col xs="auto" className="d-flex align-items-center pt-2">
+          <div className={'flex-row flex-shrink-1'} style={{ width: '50px' }}>
+            <Form.Label
+              className="mb-0 me-2 text-white"
+              style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+            >
+              Команд:
+            </Form.Label>
+            <InputGroup>
+              <FormControl
+                type="number"
+                min={2}
+                max={players.length}
+                value={teamsCount}
+                onChange={(e) => setTeamsCount(e.target.value ? Number(e.target.value) : '')}
+                className="text-center"
               />
-          ) : (
-              <div className="text-center text-info py-3">Игроки не найдены.</div>
+            </InputGroup>
+          </div>
+
+          {commonTags.length > 0 && (
+            <div className="ms-3" style={{ minWidth: 120, alignSelf: 'end' }}>
+              <Select
+                className="text-dark"
+                options={commonTags.map((t) => ({ value: t, label: t }))}
+                value={splitTag ? { value: splitTag, label: splitTag } : null}
+                onChange={(opt) => setSplitTag(opt?.value ?? '')}
+                placeholder="По тегу"
+                isClearable
+              />
+            </div>
           )}
 
-          {/* Действия */}
-          <Row className="mt-4 gap-3">
+          <Button className="ms-3 create-btn" onClick={handleSplit} disabled={selected.length < 2}>
+            Создать команды
+          </Button>
+        </Col>
+      </Row>
+      <Container className="py-4 text-light bg-dark min-vh-100">
+        {/* Параметры разделения */}
+
+        {/* Фильтры */}
+        <Row className="mb-3">
+          <Col xs={6}>
+            <InputGroup>
+              <FormControl
+                placeholder="Поиск"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+          {!!availableTags.length && (
+            <Col xs={6}>
+              <Select
+                className="text-dark"
+                isMulti
+                options={availableTags.map((t) => ({ value: t, label: t }))}
+                value={tagFilter.map((t) => ({ value: t, label: t }))}
+                onChange={(v: MultiValue<{ value: string; label: string }>) =>
+                  setTagFilter(v.map((opt) => opt.value))
+                }
+                placeholder="Теги"
+              />
+            </Col>
+          )}
+        </Row>
+
+        {/* Таблица */}
+        {filteredPlayers.length ? (
+          <PlayerTable
+            players={filteredPlayers}
+            selected={selected}
+            onToggle={toggle}
+            onSelectAll={() => selectAll(filteredPlayers.map((p) => p.id))}
+            onDeselectAll={() => selectAll([])}
+            onEdit={openEdit}
+            onDelete={handleSingleDelete}
+            onBulkDelete={() => setShowDeleteModal(true)}
+            onBulkAddTags={() => setShowAddTagsModal(true)}
+            onBulkDeleteTags={() => setShowDeleteTagsModal(true)}
+          />
+        ) : (
+          <div className="text-center text-info py-3">Игроки не найдены.</div>
+        )}
+
+        {/* Действия */}
+        <Row className="mt-4 gap-3">
+          <Col xs="auto">
+            <Button variant="success" onClick={openAdd}>
+              + Добавить игрока в базу
+            </Button>
+          </Col>
+          {selected.length > 0 && (
             <Col xs="auto">
-              <Button variant="success" onClick={openAdd}>
-                + Добавить игрока в базу
+              <Button
+                variant="info"
+                onClick={() => {
+                  setIsShareLinkVisible((p) => !p);
+                  handleShare();
+                }}
+              >
+                Поделиться базой выбранных игроков
               </Button>
             </Col>
-            {selected.length > 0 && (
-                <Col xs="auto">
-                  <Button
-                      variant="info"
-                      onClick={() => {
-                        setIsShareLinkVisible((p) => !p);
-                        handleShare();
-                      }}
-                  >
-                    Поделиться базой выбранных игроков
-                  </Button>
-                </Col>
-            )}
-            {shareLink && isShareLinkVisible && (
-                <Col xs="auto">
-                  <InputGroup>
-                    <FormControl readOnly value={shareLink} />
-                    <Button variant="outline-secondary" onClick={() => handleShare(true)}>
-                      {isCopiedLink ? 'Скопировано!' : 'Копировать'}
-                    </Button>
-                  </InputGroup>
-                </Col>
-            )}
-          </Row>
+          )}
+          {shareLink && isShareLinkVisible && (
+            <Col xs="auto">
+              <InputGroup>
+                <FormControl readOnly value={shareLink} />
+                <Button variant="outline-secondary" onClick={() => handleShare(true)}>
+                  {isCopiedLink ? 'Скопировано!' : 'Копировать'}
+                </Button>
+              </InputGroup>
+            </Col>
+          )}
+        </Row>
 
-          {/* Модалка игрока */}
-          <PlayerModal
-              availableTags={availableTags}
-              show={isOpen}
-              title={editingPlayer ? 'Сохранить' : 'Добавить'}
-              formData={formData}
-              onChange={setFormData}
-              onSubmit={onSubmit}
-              onClose={close}
-          />
+        {/* Модалка игрока */}
+        <PlayerModal
+          availableTags={availableTags}
+          show={isOpen}
+          title={editingPlayer ? 'Сохранить' : 'Добавить'}
+          formData={formData}
+          onChange={setFormData}
+          onSubmit={onSubmit}
+          onClose={close}
+        />
 
-          {/* Modals */}
-          <HowItWorksModal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} />
+        {/* Modals */}
+        <HowItWorksModal show={showHowItWorks} onHide={() => setShowHowItWorks(false)} />
 
-          <PlayerModal
-              availableTags={availableTags}
-              show={isOpen}
-              title={editingPlayer ? 'Сохранить' : 'Добавить'}
-              formData={formData}
-              onChange={setFormData}
-              onSubmit={onSubmit}
-              onClose={close}
-          />
+        <PlayerModal
+          availableTags={availableTags}
+          show={isOpen}
+          title={editingPlayer ? 'Сохранить' : 'Добавить'}
+          formData={formData}
+          onChange={setFormData}
+          onSubmit={onSubmit}
+          onClose={close}
+        />
 
-          <ConfirmDeleteModal
-              show={showDeleteModal}
-              count={selected.length}
-              onHide={() => setShowDeleteModal(false)}
-              onConfirm={handleBulkDelete}
-          />
+        <ConfirmDeleteModal
+          show={showDeleteModal}
+          count={selected.length}
+          onHide={() => setShowDeleteModal(false)}
+          onConfirm={handleBulkDelete}
+        />
 
-          <BulkAddTagsModal
-              show={showAddTagsModal}
-              availableTags={availableTags}
-              selectedTags={bulkTags}
-              onHide={() => setShowAddTagsModal(false)}
-              onChange={setBulkTags}
-              onCreateOption={handleCreateOption}
-              onConfirm={handleConfirmBulkAddTags}
-          />
+        <BulkAddTagsModal
+          show={showAddTagsModal}
+          availableTags={availableTags}
+          selectedTags={bulkTags}
+          onHide={() => setShowAddTagsModal(false)}
+          onChange={setBulkTags}
+          onCreateOption={handleCreateOption}
+          onConfirm={handleConfirmBulkAddTags}
+        />
 
-          <BulkDeleteTagsModal
-              show={showDeleteTagsModal}
-              count={selected.length}
-              onHide={() => setShowDeleteTagsModal(false)}
-              onConfirm={() => {
-                setPlayers((prev) => prev.map((p) => (selected.includes(p.id) ? { ...p, tags: [] } : p)));
-                setShowDeleteTagsModal(false);
-              }}
-          />
+        <BulkDeleteTagsModal
+          show={showDeleteTagsModal}
+          count={selected.length}
+          onHide={() => setShowDeleteTagsModal(false)}
+          onConfirm={() => {
+            setPlayers((prev) =>
+              prev.map((p) => (selected.includes(p.id) ? { ...p, tags: [] } : p))
+            );
+            setShowDeleteTagsModal(false);
+          }}
+        />
 
-          <TeamsModal
-              show={showTeamsModal}
-              teams={teams}
-              teamColors={teamColors}
-              setTeamColor={setTeamColor}
-              onHide={() => setShowTeamsModal(false)}
-              onRedo={handleSplit}
-              canCopy={show && teams.length > 0}
-              splitTag={splitTag}
-          />
-        </Container>
-      </>
-
+        <TeamsModal
+          show={showTeamsModal}
+          teams={teams}
+          teamColors={teamColors}
+          setTeamColor={setTeamColor}
+          onHide={() => setShowTeamsModal(false)}
+          onRedo={handleSplit}
+          canCopy={show && teams.length > 0}
+          splitTag={splitTag}
+        />
+        <ConfirmDeleteModal
+          name={players.find((i) => i.id === deleteTarget)?.name}
+          show={showDeleteConfirm}
+          count={1}
+          onHide={() => setShowDeleteConfirm(false)}
+          onConfirm={confirmSingleDelete}
+        />
+      </Container>
+    </>
   );
 };
