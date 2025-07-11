@@ -90,7 +90,7 @@ export const PlayerTable: React.FC<PlayerTableProps> = ({
   }, [players, sortConfig]);
 
   return (
-    <Table bordered hover variant="dark" responsive className="text-center mb-0">
+    <Table bordered hover variant="dark" responsive className="text-center mb-0" striped>
       <thead>
         <tr>
           <th>
