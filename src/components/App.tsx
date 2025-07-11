@@ -192,7 +192,7 @@ export const App: React.FC = () => {
         </Col>
       </Row>
       <Row className="mb-4 sticky-top bg-dark p-2 shadow">
-        <Col xs="auto" className="d-flex align-items-center pt-2">
+        <Col xs="auto" className="d-flex align-items-center">
           <div className={'flex-row flex-shrink-1'} style={{ width: '50px' }}>
             <Form.Label
               className="mb-0 me-2 text-white"
