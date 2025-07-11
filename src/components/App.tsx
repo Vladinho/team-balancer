@@ -262,7 +262,7 @@ export const App: React.FC = () => {
       <Row className="mt-4 gap-3">
         <Col xs="auto">
           <Button variant="success" onClick={openAdd}>
-            + Добавить игрока
+            + Добавить игрока в базу
           </Button>
         </Col>
         {selected.length > 0 && (
