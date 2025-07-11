@@ -90,6 +90,7 @@ export const TeamsDisplay: React.FC<Props> = ({ teams, teamColors, setTeamColor,
                 <li key={p.id} style={{ wordBreak: 'break-word' }}>
                   {i + 1}. {p.name}
                   {p.nickname ? ` (${p.nickname})` : ''}
+                  {getPlayerRating(p, splitTag) ? <b> - {getPlayerRating(p, splitTag)}</b> : ''}
                 </li>
               ))}
             </ul>
