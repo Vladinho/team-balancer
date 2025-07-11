@@ -191,8 +191,8 @@ export const App: React.FC = () => {
           </Button>
         </Col>
       </Row>
-      <Row className="mb-4 sticky-top bg-dark p-2 shadow">
-        <Col xs="auto" className="d-flex align-items-center">
+      <div className="d-flex flex-row sticky-top bg-dark p-2 shadow justify-content-between">
+        <div className="d-flex flex-row">
           <div className={'flex-row flex-shrink-1'} style={{ width: '50px' }}>
             <Form.Label
               className="mb-0 me-2 text-white"
@@ -224,12 +224,12 @@ export const App: React.FC = () => {
               />
             </div>
           )}
+        </div>
 
-          <Button className="ms-3 create-btn" onClick={handleSplit} disabled={selected.length < 2}>
-            Создать команды
-          </Button>
-        </Col>
-      </Row>
+        <Button className="ms-3 create-btn" onClick={handleSplit} disabled={selected.length < 2}>
+          Создать команды
+        </Button>
+      </div>
       <Container className="py-4 text-light bg-dark min-vh-100">
         {/* Параметры разделения */}
 
