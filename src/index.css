@@ -94,3 +94,17 @@ table {
     background-color: #f9f9f9;
   }
 }
+
+.create-btn {
+  align-self: end;
+  height: 41px;
+}
+
+@media screen and (width < 500px) {
+  .create-btn {
+    /*width: min-content !important;*/
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    font-size: small !important;
+  }
+}

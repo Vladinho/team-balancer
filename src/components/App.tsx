@@ -180,22 +180,25 @@ export const App: React.FC = () => {
       {/* Параметры разделения */}
       <Row className="mb-4 sticky-top bg-dark p-2 shadow">
         <Col xs="auto" className="d-flex align-items-center">
-          <Form.Label className="mb-0 me-2" style={{ fontSize: '12px' }}>
-            Число команд:
-          </Form.Label>
-          <InputGroup style={{ width: 80, minWidth: 50 }}>
-            <FormControl
-              type="number"
-              min={2}
-              max={players.length}
-              value={teamsCount}
-              onChange={(e) => setTeamsCount(e.target.value ? Number(e.target.value) : '')}
-              className="text-center"
-            />
-          </InputGroup>
+          <div className={'flex-row flex-shrink-1'} style={{width: '50px'}}>
+            <Form.Label className="mb-0 me-2" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+              Команд:
+            </Form.Label>
+            <InputGroup>
+              <FormControl
+                  type="number"
+                  min={2}
+                  max={players.length}
+                  value={teamsCount}
+                  onChange={(e) => setTeamsCount(e.target.value ? Number(e.target.value) : '')}
+                  className="text-center"
+              />
+            </InputGroup>
+          </div>
+
 
           {commonTags.length > 0 && (
-            <div className="ms-3" style={{ minWidth: 120 }}>
+            <div className="ms-3" style={{ minWidth: 120, alignSelf: 'end' }}>
               <Select
                 className="text-dark"
                 options={commonTags.map((t) => ({ value: t, label: t }))}
@@ -207,7 +210,7 @@ export const App: React.FC = () => {
             </div>
           )}
 
-          <Button className="ms-3" onClick={handleSplit} disabled={selected.length < 2}>
+          <Button className="ms-3 create-btn" onClick={handleSplit} disabled={selected.length < 2}>
             Создать команды
           </Button>
         </Col>
@@ -234,7 +237,7 @@ export const App: React.FC = () => {
               onChange={(v: MultiValue<{ value: string; label: string }>) =>
                 setTagFilter(v.map((opt) => opt.value))
               }
-              placeholder="Фильтр по тегам"
+              placeholder="Теги"
             />
           </Col>
         )}
